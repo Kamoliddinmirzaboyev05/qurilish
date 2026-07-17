@@ -1,0 +1,12 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+apps/api/.env
+apps/api/.env.test
+apps/api/uploads/*
+apps/api/uploads-test/*
+!apps/api/uploads/.gitkeep
+*.log
+.DS_Store

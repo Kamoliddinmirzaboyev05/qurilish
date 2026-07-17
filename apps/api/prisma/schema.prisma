@@ -1,0 +1,125 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  COMPANY
+  SCIENTIST
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+}
+
+enum ProblemStatus {
+  OPEN
+  MATCHED
+  CLOSED
+}
+
+enum ProposalStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+}
+
+enum BudgetType {
+  FIXED
+  NEGOTIABLE
+}
+
+enum Category {
+  CONSTRUCTION
+  CONCRETE_CEMENT
+  BUILDING_MATERIALS
+  CHEMISTRY
+  LOGISTICS
+  ENERGY_EFFICIENCY
+  SEISMIC_SAFETY
+  ECOLOGY
+  OTHER
+}
+
+model User {
+  id             String     @id @default(uuid())
+  role           Role
+  name           String
+  email          String     @unique
+  phone          String
+  passwordHash   String
+  organization   String?
+  specialization String?
+  bio            String?
+  status         UserStatus @default(ACTIVE)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  deletedAt      DateTime?
+
+  problems  Problem[]
+  proposals Proposal[]
+
+  @@index([role])
+  @@index([status])
+  @@map("users")
+}
+
+model Problem {
+  id           String        @id @default(uuid())
+  companyId    String
+  company      User          @relation(fields: [companyId], references: [id])
+  title        String
+  description  String
+  category     Category
+  budgetType   BudgetType
+  budgetAmount Decimal?      @db.Decimal(14, 2)
+  status       ProblemStatus @default(OPEN)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  matchedAt    DateTime?
+  closedAt     DateTime?
+  deletedAt    DateTime?
+
+  proposals Proposal[]
+
+  @@index([status])
+  @@index([category])
+  @@index([createdAt])
+  @@index([companyId])
+  @@map("problems")
+}
+
+model Proposal {
+  id                      String         @id @default(uuid())
+  problemId               String
+  problem                 Problem        @relation(fields: [problemId], references: [id])
+  scientistId             String
+  scientist               User           @relation(fields: [scientistId], references: [id])
+  solutionText            String
+  estimatedDays           Int
+  priceNegotiable         Boolean        @default(false)
+  proposedPrice           Decimal?       @db.Decimal(14, 2)
+  attachmentOriginalName  String?
+  attachmentStoredName    String?
+  attachmentMime          String?
+  attachmentSize          Int?
+  status                  ProposalStatus @default(PENDING)
+  createdAt               DateTime       @default(now())
+  updatedAt               DateTime       @updatedAt
+  acceptedAt              DateTime?
+  withdrawnAt             DateTime?
+  deletedAt               DateTime?
+
+  @@unique([problemId, scientistId])
+  @@index([problemId])
+  @@index([scientistId])
+  @@index([status])
+  @@map("proposals")
+}
