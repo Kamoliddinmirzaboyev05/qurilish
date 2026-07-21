@@ -5,6 +5,27 @@ import { X } from "lucide-react";
 import { IconButton } from "./Button";
 import { Button } from "./Button";
 
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+function trapTabKey(container: HTMLElement, e: KeyboardEvent) {
+  if (e.key !== "Tab") return;
+  const focusable = Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
+  if (focusable.length === 0) {
+    e.preventDefault();
+    return;
+  }
+  const first = focusable[0]!;
+  const last = focusable[focusable.length - 1]!;
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
+  }
+}
+
 interface ModalProps {
   open: boolean;
   onClose: () => void;
@@ -15,15 +36,26 @@ interface ModalProps {
 
 export function Modal({ open, onClose, title, children, footer }: ModalProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<Element | null>(null);
 
   useEffect(() => {
     if (!open) return;
+    triggerRef.current = document.activeElement;
+
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (ref.current) trapTabKey(ref.current, e);
     }
     document.addEventListener("keydown", onKeyDown);
     ref.current?.focus();
-    return () => document.removeEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      if (triggerRef.current instanceof HTMLElement) triggerRef.current.focus();
+    };
   }, [open, onClose]);
 
   return createPortal(
@@ -113,53 +145,3 @@ export function ConfirmationDialog({
   );
 }
 
-interface DrawerProps {
-  open: boolean;
-  onClose: () => void;
-  children: ReactNode;
-  side?: "left" | "right";
-}
-
-export function Drawer({ open, onClose, children, side = "left" }: DrawerProps) {
-  useEffect(() => {
-    if (!open) return;
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [open, onClose]);
-
-  return createPortal(
-    <AnimatePresence>
-      {open && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <motion.div
-            className="absolute inset-0 bg-slate-900/50"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            aria-hidden
-          />
-          <motion.div
-            role="dialog"
-            aria-modal="true"
-            initial={{ x: side === "left" ? "-100%" : "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: side === "left" ? "-100%" : "100%" }}
-            transition={{ duration: 0.22, ease: "easeOut" }}
-            className={clsxSide(side)}
-          >
-            {children}
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>,
-    document.body
-  );
-}
-
-function clsxSide(side: "left" | "right") {
-  return `absolute top-0 ${side}-0 h-full w-72 bg-white p-4 shadow-xl`;
-}

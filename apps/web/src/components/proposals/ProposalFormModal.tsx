@@ -21,7 +21,7 @@ interface ProposalFormModalProps {
 export function ProposalFormModal({ open, onClose, problemId, existing, onSuccess }: ProposalFormModalProps) {
   const [file, setFile] = useState<File | null>(null);
   const submitMutation = useSubmitProposal(problemId);
-  const updateMutation = useUpdateProposal(existing?.id ?? "");
+  const updateMutation = useUpdateProposal();
   const isEdit = !!existing;
 
   const {
@@ -54,8 +54,8 @@ export function ProposalFormModal({ open, onClose, problemId, existing, onSucces
     if (file) formData.set("attachment", file);
 
     try {
-      if (isEdit) {
-        await updateMutation.mutateAsync(formData);
+      if (isEdit && existing) {
+        await updateMutation.mutateAsync({ proposalId: existing.id, formData });
       } else {
         await submitMutation.mutateAsync(formData);
       }

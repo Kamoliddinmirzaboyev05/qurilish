@@ -14,8 +14,11 @@ import { problemsRouter } from "./modules/problems/problems.routes.js";
 import { proposalsRouter } from "./modules/proposals/proposals.routes.js";
 import { connectionsRouter } from "./modules/connections/connections.routes.js";
 import { adminRouter } from "./modules/admin/admin.routes.js";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./config/swagger.js";
 
 export const app = express();
+
 
 app.set("trust proxy", 1);
 app.use(helmet());
@@ -32,6 +35,7 @@ app.use(sessionMiddleware);
 app.use("/api", generalLimiter);
 
 app.use("/api/health", healthRouter);
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/api/auth", authRouter);
 app.use("/api/public", publicRouter);
 app.use("/api", problemsRouter);

@@ -1,0 +1,41 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: buildscience
+      POSTGRES_PASSWORD: buildscience
+      POSTGRES_DB: buildscience
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U buildscience"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://buildscience:buildscience@postgres:5432/buildscience?schema=public
+      SESSION_SECRET: ${SESSION_SECRET:-long-random-string-for-prod-buildscience}
+      SESSION_COOKIE_NAME: bs_session
+      WEB_ORIGIN: ${WEB_ORIGIN:-http://13.60.104.64}
+      UPLOAD_DIR: uploads
+      MAX_UPLOAD_MB: 10
+    volumes:
+      - uploads_data_prod:/repo/apps/api/uploads
+    ports:
+      - "4000:4000"
+
+volumes:
+  postgres_data_prod:
+  uploads_data_prod:

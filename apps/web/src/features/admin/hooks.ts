@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { AuthUser, Paginated, ProblemListItem, ProposalListItem } from "@buildscience/shared";
 import { api } from "@/lib/api";
+import { toQueryString } from "@/lib/query";
 
 interface AdminStats {
   totalUsers: number;
@@ -12,20 +13,11 @@ interface AdminStats {
   blockedUsers: number;
 }
 
-function toQueryString(filters: Record<string, unknown>) {
-  const params = new URLSearchParams();
-  for (const [key, value] of Object.entries(filters)) {
-    if (value !== undefined && value !== "" && value !== null) params.set(key, String(value));
-  }
-  const qs = params.toString();
-  return qs ? `?${qs}` : "";
-}
-
 export function useAdminStats() {
   return useQuery({ queryKey: ["admin-stats"], queryFn: () => api.get<AdminStats>("/admin/stats") });
 }
 
-export function useAdminUsers(filters: { search?: string; role?: string; status?: string; page: number }) {
+export function useAdminUsers(filters: { search?: string; role?: string; status?: string; sort?: string; page: number }) {
   return useQuery({
     queryKey: ["admin-users", filters],
     queryFn: () => api.get<Paginated<AuthUser>>(`/admin/users${toQueryString({ ...filters, pageSize: 20 })}`),
@@ -49,7 +41,7 @@ export function useDeleteUser() {
   });
 }
 
-export function useAdminProblems(filters: { search?: string; category?: string; status?: string; page: number }) {
+export function useAdminProblems(filters: { search?: string; category?: string; status?: string; sort?: string; page: number }) {
   return useQuery({
     queryKey: ["admin-problems", filters],
     queryFn: () => api.get<Paginated<ProblemListItem>>(`/admin/problems${toQueryString({ ...filters, pageSize: 20 })}`),
@@ -64,7 +56,7 @@ export function useDeleteAdminProblem() {
   });
 }
 
-export function useAdminProposals(filters: { search?: string; status?: string; page: number }) {
+export function useAdminProposals(filters: { search?: string; status?: string; sort?: string; page: number }) {
   return useQuery({
     queryKey: ["admin-proposals", filters],
     queryFn: () => api.get<Paginated<ProposalListItem>>(`/admin/proposals${toQueryString({ ...filters, pageSize: 20 })}`),

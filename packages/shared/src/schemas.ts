@@ -20,19 +20,19 @@ const password = z
   .string({ required_error: "Parolni kiriting." })
   .min(LIMITS.PASSWORD_MIN, `Parol kamida ${LIMITS.PASSWORD_MIN} ta belgidan iborat bo'lishi kerak.`);
 const organization = z
-  .string()
+  .string({ invalid_type_error: "Tashkilot nomi matn bo'lishi kerak." })
   .trim()
   .max(LIMITS.ORGANIZATION_MAX, `Tashkilot nomi ${LIMITS.ORGANIZATION_MAX} ta belgidan oshmasligi kerak.`)
   .optional()
   .or(z.literal(""));
 const specialization = z
-  .string()
+  .string({ invalid_type_error: "Mutaxassislik matn bo'lishi kerak." })
   .trim()
   .max(LIMITS.SPECIALIZATION_MAX, `Mutaxassislik ${LIMITS.SPECIALIZATION_MAX} ta belgidan oshmasligi kerak.`)
   .optional()
   .or(z.literal(""));
 const bio = z
-  .string()
+  .string({ invalid_type_error: "Bio matn bo'lishi kerak." })
   .trim()
   .max(LIMITS.BIO_MAX, `Bio ${LIMITS.BIO_MAX} ta belgidan oshmasligi kerak.`)
   .optional()
@@ -141,7 +141,7 @@ export type CreateProblemInput = z.infer<typeof createProblemSchema>;
 export const updateProblemSchema = createProblemSchema;
 
 export const problemQuerySchema = z.object({
-  search: z.string().trim().max(200).optional(),
+  search: z.string({ invalid_type_error: "Qidiruv matni noto'g'ri." }).trim().max(200, "Qidiruv matni 200 ta belgidan oshmasligi kerak.").optional(),
   category: categoryEnum.optional(),
   budgetType: budgetTypeEnum.optional(),
   sort: z
@@ -149,8 +149,8 @@ export const problemQuerySchema = z.object({
       errorMap: () => ({ message: "Noto'g'ri saralash turi." }),
     })
     .default("newest"),
-  page: z.coerce.number().int().min(1).default(1),
-  pageSize: z.coerce.number().int().min(1).max(PAGINATION.MAX_PAGE_SIZE).default(PAGINATION.DEFAULT_PAGE_SIZE),
+  page: z.coerce.number({ invalid_type_error: "Sahifa raqami noto'g'ri." }).int("Sahifa butun son bo'lishi kerak.").min(1, "Sahifa raqami kamida 1 bo'lishi kerak.").default(1),
+  pageSize: z.coerce.number({ invalid_type_error: "Sahifa hajmi noto'g'ri." }).int("Sahifa hajmi butun son bo'lishi kerak.").min(1, "Sahifa hajmi kamida 1 bo'lishi kerak.").max(PAGINATION.MAX_PAGE_SIZE, `Sahifa hajmi ${PAGINATION.MAX_PAGE_SIZE} dan oshmasligi kerak.`).default(PAGINATION.DEFAULT_PAGE_SIZE),
 });
 export type ProblemQueryInput = z.infer<typeof problemQuerySchema>;
 
@@ -165,13 +165,13 @@ export const createProposalSchema = z
       )
       .max(LIMITS.PROPOSAL_SOLUTION_MAX, `Yechim tavsifi ${LIMITS.PROPOSAL_SOLUTION_MAX} ta belgidan oshmasligi kerak.`),
     estimatedDays: z.coerce
-      .number({ invalid_type_error: "Bajarish muddatini kiriting." })
+      .number({ invalid_type_error: "Bajarish muddatini to'g'ri kiriting.", required_error: "Bajarish muddatini kiriting." })
       .int("Bajarish muddati butun son bo'lishi kerak.")
       .min(LIMITS.ESTIMATED_DAYS_MIN, "Bajarish muddati musbat son bo'lishi kerak.")
       .max(LIMITS.ESTIMATED_DAYS_MAX, `Bajarish muddati ${LIMITS.ESTIMATED_DAYS_MAX} kundan oshmasligi kerak.`),
     priceNegotiable: z.coerce.boolean().default(false),
     proposedPrice: z.coerce
-      .number({ invalid_type_error: "Taklif narxini kiriting." })
+      .number({ invalid_type_error: "Taklif narxini to'g'ri kiriting.", required_error: "Taklif narxini kiriting." })
       .positive("Taklif narxi musbat son bo'lishi kerak.")
       .optional()
       .nullable(),
@@ -193,7 +193,7 @@ export const adminUserStatusSchema = z.object({
 });
 
 export const paginationQuerySchema = z.object({
-  search: z.string().trim().max(200).optional(),
-  page: z.coerce.number().int().min(1).default(1),
-  pageSize: z.coerce.number().int().min(1).max(PAGINATION.MAX_PAGE_SIZE).default(20),
+  search: z.string({ invalid_type_error: "Qidiruv matni noto'g'ri." }).trim().max(200, "Qidiruv matni 200 ta belgidan oshmasligi kerak.").optional(),
+  page: z.coerce.number({ invalid_type_error: "Sahifa raqami noto'g'ri." }).int("Sahifa butun son bo'lishi kerak.").min(1, "Sahifa raqami kamida 1 bo'lishi kerak.").default(1),
+  pageSize: z.coerce.number({ invalid_type_error: "Sahifa hajmi noto'g'ri." }).int("Sahifa hajmi butun son bo'lishi kerak.").min(1, "Sahifa hajmi kamida 1 bo'lishi kerak.").max(PAGINATION.MAX_PAGE_SIZE, `Sahifa hajmi ${PAGINATION.MAX_PAGE_SIZE} dan oshmasligi kerak.`).default(20),
 });

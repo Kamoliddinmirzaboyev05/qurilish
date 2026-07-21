@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { CompanyStats, CreateProblemInput, Paginated, ProblemDetail, ProblemListItem } from "@buildscience/shared";
 import { api } from "@/lib/api";
+import { toQueryString } from "@/lib/query";
 
 export interface ProblemFilters {
   search?: string;
@@ -9,15 +10,6 @@ export interface ProblemFilters {
   sort?: string;
   page?: number;
   pageSize?: number;
-}
-
-function toQueryString(filters: object) {
-  const params = new URLSearchParams();
-  for (const [key, value] of Object.entries(filters)) {
-    if (value !== undefined && value !== "" && value !== null) params.set(key, String(value));
-  }
-  const qs = params.toString();
-  return qs ? `?${qs}` : "";
 }
 
 export function useProblems(filters: ProblemFilters) {

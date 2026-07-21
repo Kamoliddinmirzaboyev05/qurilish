@@ -15,15 +15,21 @@ import { notify } from "@/components/ui/toast";
 import { ApiRequestError } from "@/lib/api";
 import { formatDate, formatMoney, formatProposalCount } from "@/lib/format";
 
+const sortOptions = [
+  { value: "newest", label: "Eng yangi" },
+  { value: "oldest", label: "Eng eski" },
+];
+
 export default function AdminProblemsPage() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("ALL");
   const [status, setStatus] = useState("ALL");
+  const [sort, setSort] = useState("newest");
   const [page, setPage] = useState(1);
   const [deleteTarget, setDeleteTarget] = useState<ProblemListItem | null>(null);
 
   const debouncedSearch = useDebounce(search);
-  const { data, isLoading } = useAdminProblems({ search: debouncedSearch, category, status, page });
+  const { data, isLoading } = useAdminProblems({ search: debouncedSearch, category, status, sort, page });
   const deleteMutation = useDeleteAdminProblem();
 
   async function confirmDelete() {
@@ -56,6 +62,7 @@ export default function AdminProblemsPage() {
           onChange={(e) => setStatus(e.target.value)}
           options={[{ value: "ALL", label: "Barcha holatlar" }, ...Object.entries(PROBLEM_STATUS_LABELS_UZ).map(([value, label]) => ({ value, label }))]}
         />
+        <Select value={sort} onChange={(e) => setSort(e.target.value)} options={sortOptions} />
       </FilterBar>
 
       {isLoading ? (

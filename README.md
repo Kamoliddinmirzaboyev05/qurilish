@@ -89,6 +89,7 @@ docker compose exec api npm run db:seed
 | `UPLOAD_DIR` | Fayllar saqlanadigan papka |
 | `MAX_UPLOAD_MB` | Maksimal fayl hajmi (MB) |
 | `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PHONE`, `ADMIN_PASSWORD` | Seed orqali yaratiladigan administrator ma'lumotlari |
+| `SEED_FORCE` | `production`da namunaviy muammo/taklif ma'lumotlarini majburan qayta yaratish uchun `1` qiymatini bering (standart holatda production'da bu qadam o'tkazib yuboriladi) |
 
 ## Buyruqlar
 
@@ -97,7 +98,7 @@ npm run dev              # frontend + backend (development)
 npm run build             # shared → api → web build
 npm run typecheck         # barcha workspace'larda TypeScript tekshiruvi
 npm run lint               # ESLint
-npm run test                # backend testlari (Vitest + Supertest)
+npm run test                # backend (Vitest + Supertest) va frontend (Vitest + Testing Library) testlari
 npm run db:migrate          # Prisma migratsiyalarni qo'llash
 npm run db:seed              # namunaviy ma'lumotlarni yuklash
 ```

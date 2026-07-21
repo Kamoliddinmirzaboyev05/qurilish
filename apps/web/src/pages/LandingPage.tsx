@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { motion } from "motion/react";
 import { FlaskConical, ClipboardList, Handshake, ArrowRight } from "lucide-react";
 import { CATEGORY_LABELS_UZ, type Category } from "@buildscience/shared";
@@ -16,6 +17,13 @@ export default function LandingPage() {
   const { user } = useAuth();
   const { data: stats } = usePublicStats();
   const { data: latestProblems, isLoading } = useProblems({ sort: "newest", page: 1, pageSize: 6 });
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!location.hash) return;
+    const target = document.querySelector(location.hash);
+    target?.scrollIntoView({ behavior: "smooth" });
+  }, [location.hash]);
 
   const primaryHref =
     user?.role === "COMPANY" ? "/app/company/problems/new" : user?.role === "SCIENTIST" ? "/problems" : "/register?role=COMPANY";

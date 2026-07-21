@@ -11,6 +11,7 @@ import { prisma } from "../../services/prisma.js";
 import { verifyPassword, hashPassword } from "../../utils/password.js";
 import { normalizePhone } from "../../utils/phone.js";
 import { AppError } from "../../utils/AppError.js";
+import { env } from "../../config/env.js";
 
 export const authRouter = Router();
 
@@ -38,7 +39,7 @@ authRouter.post(
 
 authRouter.post("/logout", (req, res) => {
   req.session.destroy(() => {
-    res.clearCookie(process.env.SESSION_COOKIE_NAME ?? "bs_session");
+    res.clearCookie(env.sessionCookieName);
     ok(res, { loggedOut: true });
   });
 });

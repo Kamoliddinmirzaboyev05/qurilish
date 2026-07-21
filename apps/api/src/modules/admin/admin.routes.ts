@@ -15,6 +15,10 @@ export const adminRouter = Router();
 
 adminRouter.use(requireAuth, requireRole("ADMIN"));
 
+function sortOrder(req: { query: Record<string, unknown> }): "asc" | "desc" {
+  return req.query.sort === "oldest" ? "asc" : "desc";
+}
+
 adminRouter.get(
   "/stats",
   asyncHandler(async (_req, res) => {
@@ -43,9 +47,9 @@ adminRouter.get(
 
 adminRouter.get(
   "/users",
-  validateQuery(paginationQuerySchema.extend({})),
+  validateQuery(paginationQuerySchema),
   asyncHandler(async (req, res) => {
-    const { search, page, pageSize } = req.query as unknown as { search?: string; page: number; pageSize: number };
+    const { search, page, pageSize } = paginationQuerySchema.parse(req.query);
     const role = typeof req.query.role === "string" ? req.query.role : undefined;
     const status = typeof req.query.status === "string" ? req.query.status : undefined;
 
@@ -65,7 +69,7 @@ adminRouter.get(
     };
 
     const [users, total] = await Promise.all([
-      prisma.user.findMany({ where, orderBy: { createdAt: "desc" }, skip: (page - 1) * pageSize, take: pageSize }),
+      prisma.user.findMany({ where, orderBy: { createdAt: sortOrder(req) }, skip: (page - 1) * pageSize, take: pageSize }),
       prisma.user.count({ where }),
     ]);
 
@@ -104,9 +108,9 @@ adminRouter.delete(
 
 adminRouter.get(
   "/problems",
-  validateQuery(paginationQuerySchema.extend({})),
+  validateQuery(paginationQuerySchema),
   asyncHandler(async (req, res) => {
-    const { search, page, pageSize } = req.query as unknown as { search?: string; page: number; pageSize: number };
+    const { search, page, pageSize } = paginationQuerySchema.parse(req.query);
     const category = typeof req.query.category === "string" ? req.query.category : undefined;
     const status = typeof req.query.status === "string" ? req.query.status : undefined;
 
@@ -120,7 +124,7 @@ adminRouter.get(
     const [problems, total] = await Promise.all([
       prisma.problem.findMany({
         where,
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: sortOrder(req) },
         skip: (page - 1) * pageSize,
         take: pageSize,
         include: { company: true, _count: { select: { proposals: { where: { deletedAt: null } } } } },
@@ -144,9 +148,9 @@ adminRouter.delete(
 
 adminRouter.get(
   "/proposals",
-  validateQuery(paginationQuerySchema.extend({})),
+  validateQuery(paginationQuerySchema),
   asyncHandler(async (req, res) => {
-    const { search, page, pageSize } = req.query as unknown as { search?: string; page: number; pageSize: number };
+    const { search, page, pageSize } = paginationQuerySchema.parse(req.query);
     const status = typeof req.query.status === "string" ? req.query.status : undefined;
 
     const where: Prisma.ProposalWhereInput = {
@@ -165,7 +169,7 @@ adminRouter.get(
     const [proposals, total] = await Promise.all([
       prisma.proposal.findMany({
         where,
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: sortOrder(req) },
         skip: (page - 1) * pageSize,
         take: pageSize,
         include: { scientist: true, problem: { include: { company: true } } },

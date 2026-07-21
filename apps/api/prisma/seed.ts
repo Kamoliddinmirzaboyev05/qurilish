@@ -103,6 +103,20 @@ async function main() {
     },
   });
 
+  console.log("Accounts seeded:");
+  console.log(`  Admin:      ${adminEmail} / ${adminPassword}`);
+  console.log("  Company A:  qurilish-invest@buildscience.local / Company12345!");
+  console.log("  Company B:  betonstroy@buildscience.local / Company12345!");
+  console.log("  Scientist1: aziz.karimov@buildscience.local / Scientist12345!");
+  console.log("  Scientist2: nodira.yusupova@buildscience.local / Scientist12345!");
+  console.log("  Scientist3: bekzod.rahimov@buildscience.local / Scientist12345!");
+
+  if (process.env.NODE_ENV === "production" && process.env.SEED_FORCE !== "1") {
+    console.log("NODE_ENV=production: skipping sample problems/proposals (accounts above are seeded).");
+    console.log("Set SEED_FORCE=1 to force-reset sample data in production.");
+    return;
+  }
+
   await prisma.proposal.deleteMany({});
   await prisma.problem.deleteMany({});
 
@@ -362,13 +376,7 @@ async function main() {
     }),
   ]);
 
-  console.log("Seed completed:");
-  console.log(`  Admin:      ${adminEmail} / ${adminPassword}`);
-  console.log("  Company A:  qurilish-invest@buildscience.local / Company12345!");
-  console.log("  Company B:  betonstroy@buildscience.local / Company12345!");
-  console.log("  Scientist1: aziz.karimov@buildscience.local / Scientist12345!");
-  console.log("  Scientist2: nodira.yusupova@buildscience.local / Scientist12345!");
-  console.log("  Scientist3: bekzod.rahimov@buildscience.local / Scientist12345!");
+  console.log("Sample problems and proposals seeded.");
 }
 
 main()

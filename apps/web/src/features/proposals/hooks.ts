@@ -44,11 +44,12 @@ export function useSubmitProposal(problemId: string) {
   });
 }
 
-export function useUpdateProposal(proposalId: string) {
+export function useUpdateProposal() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (formData: FormData) => api.patchForm<ProposalListItem>(`/proposals/${proposalId}`, formData),
-    onSuccess: () => {
+    mutationFn: ({ proposalId, formData }: { proposalId: string; formData: FormData }) =>
+      api.patchForm<ProposalListItem>(`/proposals/${proposalId}`, formData),
+    onSuccess: (_data, { proposalId }) => {
       queryClient.invalidateQueries({ queryKey: ["my-proposals"] });
       queryClient.invalidateQueries({ queryKey: ["proposal", proposalId] });
     },

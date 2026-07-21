@@ -1,4 +1,12 @@
-import { forwardRef, useId, useState, type InputHTMLAttributes, type SelectHTMLAttributes, type TextareaHTMLAttributes } from "react";
+import {
+  forwardRef,
+  useId,
+  useState,
+  type ChangeEvent,
+  type InputHTMLAttributes,
+  type SelectHTMLAttributes,
+  type TextareaHTMLAttributes,
+} from "react";
 import { Eye, EyeOff } from "lucide-react";
 import clsx from "clsx";
 
@@ -67,15 +75,28 @@ export const PasswordInput = forwardRef<HTMLInputElement, InputProps>(({ classNa
 });
 PasswordInput.displayName = "PasswordInput";
 
-export const PhoneInput = forwardRef<HTMLInputElement, InputProps>(({ className, error, ...props }, ref) => (
-  <input
-    ref={ref}
-    type="tel"
-    placeholder="+998901234567"
-    className={clsx(baseFieldClasses, error && "border-danger", className)}
-    {...props}
-  />
-));
+export const PhoneInput = forwardRef<HTMLInputElement, InputProps>(({ className, error, onChange, ...props }, ref) => {
+  function handleChange(e: ChangeEvent<HTMLInputElement>) {
+    let value = e.target.value;
+    if (value.startsWith("+998")) value = value.slice(4);
+    let digits = value.replace(/\D/g, "");
+    if (digits.length > 9 && digits.startsWith("998")) digits = digits.slice(3);
+    digits = digits.slice(0, 9);
+    e.target.value = digits ? `+998${digits}` : "";
+    onChange?.(e);
+  }
+
+  return (
+    <input
+      ref={ref}
+      type="tel"
+      placeholder="+998901234567"
+      onChange={handleChange}
+      className={clsx(baseFieldClasses, error && "border-danger", className)}
+      {...props}
+    />
+  );
+});
 PhoneInput.displayName = "PhoneInput";
 
 export interface CurrencyInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "onChange" | "value"> {
@@ -141,23 +162,27 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(({ className, e
 ));
 Select.displayName = "Select";
 
-export function Checkbox({ label, id, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string }) {
-  const autoId = useId();
-  const inputId = id ?? autoId;
-  return (
-    <div className="flex items-center gap-2">
-      <input
-        id={inputId}
-        type="checkbox"
-        className="h-5 w-5 rounded border-surface-border text-brand-primary focus:ring-2 focus:ring-brand-primary/20"
-        {...props}
-      />
-      <label htmlFor={inputId} className="text-sm text-ink">
-        {label}
-      </label>
-    </div>
-  );
-}
+export const Checkbox = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement> & { label: string }>(
+  ({ label, id, ...props }, ref) => {
+    const autoId = useId();
+    const inputId = id ?? autoId;
+    return (
+      <div className="flex items-center gap-2">
+        <input
+          ref={ref}
+          id={inputId}
+          type="checkbox"
+          className="h-5 w-5 rounded border-surface-border text-brand-primary focus:ring-2 focus:ring-brand-primary/20"
+          {...props}
+        />
+        <label htmlFor={inputId} className="text-sm text-ink">
+          {label}
+        </label>
+      </div>
+    );
+  }
+);
+Checkbox.displayName = "Checkbox";
 
 export function RadioGroup<T extends string>({
   name,

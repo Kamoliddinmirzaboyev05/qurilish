@@ -9,19 +9,26 @@ import { Card, EmptyState, CardGridSkeleton } from "@/components/ui/Card";
 import { ProposalStatusBadge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Pagination } from "@/components/ui/Pagination";
-import { ConfirmationDialog } from "@/components/ui/Modal";
+import { ConfirmationDialog, Modal } from "@/components/ui/Modal";
 import { notify } from "@/components/ui/toast";
 import { ApiRequestError } from "@/lib/api";
 import { formatDate, formatMoney } from "@/lib/format";
 
+const sortOptions = [
+  { value: "newest", label: "Eng yangi" },
+  { value: "oldest", label: "Eng eski" },
+];
+
 export default function AdminProposalsPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("ALL");
+  const [sort, setSort] = useState("newest");
   const [page, setPage] = useState(1);
+  const [viewTarget, setViewTarget] = useState<ProposalListItem | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ProposalListItem | null>(null);
 
   const debouncedSearch = useDebounce(search);
-  const { data, isLoading } = useAdminProposals({ search: debouncedSearch, status, page });
+  const { data, isLoading } = useAdminProposals({ search: debouncedSearch, status, sort, page });
   const deleteMutation = useDeleteAdminProposal();
 
   async function confirmDelete() {
@@ -49,6 +56,7 @@ export default function AdminProposalsPage() {
           onChange={(e) => setStatus(e.target.value)}
           options={[{ value: "ALL", label: "Barcha holatlar" }, ...Object.entries(PROPOSAL_STATUS_LABELS_UZ).map(([value, label]) => ({ value, label }))]}
         />
+        <Select value={sort} onChange={(e) => setSort(e.target.value)} options={sortOptions} />
       </FilterBar>
 
       {isLoading ? (
@@ -69,6 +77,9 @@ export default function AdminProposalsPage() {
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={() => setViewTarget(proposal)}>
+                  Ko'rish
+                </Button>
                 {proposal.attachmentOriginalName && (
                   <a
                     href={`/api/proposals/${proposal.id}/attachment`}
@@ -91,6 +102,35 @@ export default function AdminProposalsPage() {
       )}
 
       {data && <Pagination page={data.page} totalPages={data.totalPages} onPageChange={setPage} />}
+
+      {viewTarget && (
+        <Modal open onClose={() => setViewTarget(null)} title={viewTarget.problemTitle ?? "Taklif"}>
+          <div className="flex flex-col gap-2 text-sm">
+            <p>
+              <span className="text-ink-muted">Olim:</span> {viewTarget.scientistName}
+            </p>
+            {(viewTarget.specialization || viewTarget.organization) && (
+              <p>
+                <span className="text-ink-muted">Mutaxassislik:</span>{" "}
+                {[viewTarget.specialization, viewTarget.organization].filter(Boolean).join(" · ")}
+              </p>
+            )}
+            <p>
+              <span className="text-ink-muted">Narx:</span>{" "}
+              {viewTarget.priceNegotiable ? "Kelishiladi" : formatMoney(viewTarget.proposedPrice)}
+            </p>
+            <p>
+              <span className="text-ink-muted">Muddat:</span> {viewTarget.estimatedDays} kun
+            </p>
+            <p>
+              <span className="text-ink-muted">Yuborilgan sana:</span> {formatDate(viewTarget.createdAt)}
+            </p>
+            <p className="whitespace-pre-line">
+              <span className="text-ink-muted">Yechim tavsifi:</span> {viewTarget.solutionText}
+            </p>
+          </div>
+        </Modal>
+      )}
 
       <ConfirmationDialog
         open={!!deleteTarget}

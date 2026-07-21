@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { MotionConfig } from "motion/react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { AuthProvider } from "@/features/auth/AuthContext";
@@ -34,55 +35,57 @@ const AdminProposalsPage = lazy(() => import("@/pages/admin/AdminProposalsPage")
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <BrowserRouter>
-          <Toaster position="top-center" />
-          <Suspense fallback={<FullScreenLoader />}>
-            <Routes>
-              <Route element={<PublicLayout />}>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/problems" element={<ProblemsListPage />} />
-                <Route path="/problems/:problemId" element={<ProblemDetailPage />} />
-                <Route path="/forbidden" element={<ForbiddenPage />} />
-                <Route path="*" element={<NotFoundPage />} />
+    <MotionConfig reducedMotion="user">
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <BrowserRouter>
+            <Toaster position="top-center" />
+            <Suspense fallback={<FullScreenLoader />}>
+              <Routes>
+                <Route element={<PublicLayout />}>
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/problems" element={<ProblemsListPage />} />
+                  <Route path="/problems/:problemId" element={<ProblemDetailPage />} />
+                  <Route path="/forbidden" element={<ForbiddenPage />} />
+                  <Route path="*" element={<NotFoundPage />} />
 
-                <Route element={<RequireGuest />}>
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/register" element={<RegisterPage />} />
-                </Route>
-              </Route>
-
-              <Route element={<RequireAuth />}>
-                <Route element={<AppShellLayout />}>
-                  <Route path="/app/profile" element={<ProfilePage />} />
-                  <Route path="/app/connections" element={<ConnectionsPage />} />
-
-                  <Route element={<RequireRole roles={["COMPANY"]} />}>
-                    <Route path="/app/company" element={<CompanyDashboardPage />} />
-                    <Route path="/app/company/problems" element={<CompanyProblemsPage />} />
-                    <Route path="/app/company/problems/new" element={<CompanyProblemFormPage />} />
-                    <Route path="/app/company/problems/:problemId/edit" element={<CompanyProblemFormPage />} />
-                    <Route path="/app/company/problems/:problemId/proposals" element={<CompanyProblemProposalsPage />} />
-                  </Route>
-
-                  <Route element={<RequireRole roles={["SCIENTIST"]} />}>
-                    <Route path="/app/scientist" element={<ScientistDashboardPage />} />
-                    <Route path="/app/scientist/proposals" element={<ScientistProposalsPage />} />
-                  </Route>
-
-                  <Route element={<RequireRole roles={["ADMIN"]} />}>
-                    <Route path="/admin" element={<AdminDashboardPage />} />
-                    <Route path="/admin/users" element={<AdminUsersPage />} />
-                    <Route path="/admin/problems" element={<AdminProblemsPage />} />
-                    <Route path="/admin/proposals" element={<AdminProposalsPage />} />
+                  <Route element={<RequireGuest />}>
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
                   </Route>
                 </Route>
-              </Route>
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
-      </AuthProvider>
-    </QueryClientProvider>
+
+                <Route element={<RequireAuth />}>
+                  <Route element={<AppShellLayout />}>
+                    <Route path="/app/profile" element={<ProfilePage />} />
+                    <Route path="/app/connections" element={<ConnectionsPage />} />
+
+                    <Route element={<RequireRole roles={["COMPANY"]} />}>
+                      <Route path="/app/company" element={<CompanyDashboardPage />} />
+                      <Route path="/app/company/problems" element={<CompanyProblemsPage />} />
+                      <Route path="/app/company/problems/new" element={<CompanyProblemFormPage />} />
+                      <Route path="/app/company/problems/:problemId/edit" element={<CompanyProblemFormPage />} />
+                      <Route path="/app/company/problems/:problemId/proposals" element={<CompanyProblemProposalsPage />} />
+                    </Route>
+
+                    <Route element={<RequireRole roles={["SCIENTIST"]} />}>
+                      <Route path="/app/scientist" element={<ScientistDashboardPage />} />
+                      <Route path="/app/scientist/proposals" element={<ScientistProposalsPage />} />
+                    </Route>
+
+                    <Route element={<RequireRole roles={["ADMIN"]} />}>
+                      <Route path="/admin" element={<AdminDashboardPage />} />
+                      <Route path="/admin/users" element={<AdminUsersPage />} />
+                      <Route path="/admin/problems" element={<AdminProblemsPage />} />
+                      <Route path="/admin/proposals" element={<AdminProposalsPage />} />
+                    </Route>
+                  </Route>
+                </Route>
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </AuthProvider>
+      </QueryClientProvider>
+    </MotionConfig>
   );
 }

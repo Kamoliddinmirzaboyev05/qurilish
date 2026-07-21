@@ -15,9 +15,9 @@ export function Footer() {
           <Link to="/problems" className="text-ink-muted hover:text-ink">
             Muammolar
           </Link>
-          <a href="/#how-it-works" className="text-ink-muted hover:text-ink">
+          <Link to="/#how-it-works" className="text-ink-muted hover:text-ink">
             Qanday ishlaydi
-          </a>
+          </Link>
           <Link to="/login" className="text-ink-muted hover:text-ink">
             Kirish
           </Link>

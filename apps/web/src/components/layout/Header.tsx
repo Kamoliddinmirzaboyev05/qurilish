@@ -36,9 +36,9 @@ export function Header() {
 
         <nav className="hidden items-center gap-6 md:flex">
           {navLinks.map((link) => (
-            <a key={link.to} href={link.to} className="text-sm font-medium text-ink-muted hover:text-ink">
+            <Link key={link.to} to={link.to} className="text-sm font-medium text-ink-muted hover:text-ink">
               {link.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -85,9 +85,9 @@ export function Header() {
             </div>
             <nav className="flex flex-col gap-4">
               {navLinks.map((link) => (
-                <a key={link.to} href={link.to} className="text-sm font-medium text-ink" onClick={() => setDrawerOpen(false)}>
+                <Link key={link.to} to={link.to} className="text-sm font-medium text-ink" onClick={() => setDrawerOpen(false)}>
                   {link.label}
-                </a>
+                </Link>
               ))}
             </nav>
             <div className="mt-6 flex flex-col gap-3 border-t border-surface-border pt-6">

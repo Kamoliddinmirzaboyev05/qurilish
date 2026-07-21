@@ -16,14 +16,7 @@ problemsRouter.get(
   "/problems",
   validateQuery(problemQuerySchema),
   asyncHandler(async (req, res) => {
-    const { search, category, budgetType, sort, page, pageSize } = req.query as unknown as {
-      search?: string;
-      category?: string;
-      budgetType?: string;
-      sort: "newest" | "oldest" | "budgetHigh" | "budgetLow";
-      page: number;
-      pageSize: number;
-    };
+    const { search, category, budgetType, sort, page, pageSize } = problemQuerySchema.parse(req.query);
 
     const where: Prisma.ProblemWhereInput = {
       status: "OPEN",
@@ -69,9 +62,9 @@ problemsRouter.get(
   "/company/problems",
   requireAuth,
   requireRole("COMPANY"),
-  validateQuery(paginationQuerySchema.extend({})),
+  validateQuery(paginationQuerySchema),
   asyncHandler(async (req, res) => {
-    const { page, pageSize } = req.query as unknown as { page: number; pageSize: number };
+    const { page, pageSize } = paginationQuerySchema.parse(req.query);
     const status = typeof req.query.status === "string" ? req.query.status : undefined;
 
     const where: Prisma.ProblemWhereInput = {
