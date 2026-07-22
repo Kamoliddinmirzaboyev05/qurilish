@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Building2, FlaskConical } from "lucide-react";
+import { Building2, FlaskConical, FileCheck } from "lucide-react";
 import clsx from "clsx";
 import { registerSchema, type RegisterInput, type AuthUser } from "@buildscience/shared";
 import { FormField, Input, PasswordInput, PhoneInput } from "@/components/ui/Input";
@@ -17,7 +17,7 @@ export default function RegisterPage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const initialRole = params.get("role") === "SCIENTIST" ? "SCIENTIST" : "COMPANY";
-  const [role, setRole] = useState<"COMPANY" | "SCIENTIST">(initialRole);
+  const [role, setRole] = useState<"COMPANY" | "SCIENTIST" | "EXPERT">(initialRole as any);
 
   const {
     register,
@@ -30,7 +30,7 @@ export default function RegisterPage() {
     defaultValues: { role: initialRole },
   });
 
-  function selectRole(next: "COMPANY" | "SCIENTIST") {
+  function selectRole(next: "COMPANY" | "SCIENTIST" | "EXPERT") {
     setRole(next);
     setValue("role", next);
   }
@@ -58,7 +58,7 @@ export default function RegisterPage() {
         <h1 className="text-2xl font-semibold text-brand-dark">Ro'yxatdan o'tish</h1>
       </div>
 
-      <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Rolni tanlang">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3" role="radiogroup" aria-label="Rolni tanlang">
         <button
           type="button"
           onClick={() => selectRole("COMPANY")}
@@ -82,6 +82,18 @@ export default function RegisterPage() {
         >
           <FlaskConical className={role === "SCIENTIST" ? "text-brand-primary" : "text-ink-muted"} size={28} />
           <span className="font-medium text-brand-dark">Olim</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => selectRole("EXPERT")}
+          aria-pressed={role === "EXPERT"}
+          className={clsx(
+            "flex flex-col items-center gap-2 rounded-card border-2 p-5 text-center transition-colors",
+            role === "EXPERT" ? "border-brand-primary bg-brand-primary/5" : "border-surface-border bg-white"
+          )}
+        >
+          <FileCheck className={role === "EXPERT" ? "text-brand-primary" : "text-ink-muted"} size={28} />
+          <span className="font-medium text-brand-dark">Ekspert</span>
         </button>
       </div>
 
