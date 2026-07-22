@@ -126,10 +126,13 @@ export default function CompanyProblemProposalsPage() {
                   </a>
                 )}
               </div>
-              {proposal.status === "PENDING" && !acceptedProposal && (
+              {proposal.status === "EXPERT_APPROVED" && !acceptedProposal && (
                 <Button className="self-start" onClick={() => setConfirmTarget(proposal)}>
                   Taklifni qabul qilish
                 </Button>
+              )}
+              {proposal.status === "PENDING" && !acceptedProposal && (
+                <p className="text-sm italic text-amber-600">Ekspert xulosasi kutilmoqda...</p>
               )}
               {proposal.status === "REJECTED" && <p className="text-sm text-ink-muted">Rad etildi</p>}
             </Card>

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import path from "node:path";
 import fs from "node:fs/promises";
-import { createProposalSchema, updateProposalSchema } from "@buildscience/shared";
+import { createProposalSchema, updateProposalSchema, expertReviewSchema } from "@buildscience/shared";
 import { requireAuth, requireRole } from "../../middleware/auth.js";
 import { handleProposalUpload, uploadRoot } from "../../middleware/upload.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
@@ -357,7 +357,7 @@ proposalsRouter.post(
     const proposal = await prisma.proposal.findFirst({ where: { id: req.params.proposalId, deletedAt: null } });
     if (!proposal) throw AppError.notFound("Taklif topilmadi.");
     if (proposal.scientistId !== req.user!.id) throw AppError.forbidden();
-    if (proposal.status !== "PENDING") throw AppError.conflict("Faqat kutilayotgan taklifni bekor qilish mumkin.");
+    if (proposal.status !== "PENDING" && proposal.status !== "EXPERT_APPROVED") throw AppError.conflict("Bu bosqichdagi taklifni bekor qilib bo'lmaydi.");
 
     const updated = await prisma.proposal.update({
       where: { id: proposal.id },
@@ -397,7 +397,7 @@ proposalsRouter.post(
       const problem = await tx.problem.findFirst({ where: { id: proposal.problemId, deletedAt: null } });
       if (!problem) throw AppError.notFound("Muammo topilmadi.");
       if (problem.companyId !== req.user!.id) throw AppError.forbidden();
-      if (proposal.status !== "PENDING") throw AppError.conflict("Taklif allaqachon ko'rib chiqilgan.");
+      if (proposal.status !== "EXPERT_APPROVED") throw AppError.conflict("Faqat ekspertlar tomonidan ma'qullangan takliflarni qabul qilish mumkin.");
 
       const scientist = await tx.user.findFirst({
         where: { id: proposal.scientistId, status: "ACTIVE", deletedAt: null },
@@ -471,5 +471,84 @@ proposalsRouter.get(
         res.status(404).json({ success: false, message: "Fayl topilmadi." });
       }
     });
+  })
+);
+
+/**
+ * @openapi
+ * /proposals/expert:
+ *   get:
+ *     tags: [Proposals]
+ *     summary: Ekspertiza kutilayotgan takliflar ro'yxati (EXPERT)
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+proposalsRouter.get(
+  "/proposals/expert",
+  requireAuth,
+  requireRole("EXPERT"),
+  asyncHandler(async (req, res) => {
+    const proposals = await prisma.proposal.findMany({
+      where: { status: "PENDING", deletedAt: null },
+      orderBy: { createdAt: "desc" },
+      include: { scientist: true, problem: { include: { company: true } } },
+    });
+    ok(res, { items: proposals.map(toProposalListItem) });
+  })
+);
+
+/**
+ * @openapi
+ * /proposals/{proposalId}/expert-review:
+ *   post:
+ *     tags: [Proposals]
+ *     summary: Taklifni ekspertizadan o'tkazish (EXPERT)
+ *     parameters:
+ *       - in: path
+ *         name: proposalId
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [status]
+ *             properties:
+ *               status: { type: string, enum: [APPROVE, REJECT] }
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+proposalsRouter.post(
+  "/proposals/:proposalId/expert-review",
+  requireAuth,
+  requireRole("EXPERT"),
+  asyncHandler(async (req, res) => {
+    const parsed = expertReviewSchema.safeParse(req.body);
+    if (!parsed.success) throw AppError.badRequest("Noto'g'ri so'rov.");
+
+    const proposal = await prisma.proposal.findFirst({
+      where: { id: req.params.proposalId, deletedAt: null },
+      include: { problem: true }
+    });
+    if (!proposal) throw AppError.notFound("Taklif topilmadi.");
+    if (proposal.status !== "PENDING") throw AppError.conflict("Faqat kutilayotgan takliflarni baholash mumkin.");
+
+    const newStatus = parsed.data.status === "APPROVE" ? "EXPERT_APPROVED" : "REJECTED";
+    
+    const updated = await prisma.proposal.update({
+      where: { id: proposal.id },
+      data: {
+        status: newStatus,
+        reviewedById: req.user!.id,
+        reviewedAt: new Date(),
+      },
+      include: { scientist: true },
+    });
+
+    ok(res, toProposalListItem(updated));
   })
 );

@@ -1,6 +1,7 @@
 export const Role = {
   COMPANY: "COMPANY",
   SCIENTIST: "SCIENTIST",
+  EXPERT: "EXPERT",
   ADMIN: "ADMIN",
 } as const;
 export type Role = (typeof Role)[keyof typeof Role];
@@ -20,6 +21,7 @@ export type ProblemStatus = (typeof ProblemStatus)[keyof typeof ProblemStatus];
 
 export const ProposalStatus = {
   PENDING: "PENDING",
+  EXPERT_APPROVED: "EXPERT_APPROVED",
   ACCEPTED: "ACCEPTED",
   REJECTED: "REJECTED",
   WITHDRAWN: "WITHDRAWN",
@@ -48,6 +50,7 @@ export type Category = (typeof Category)[keyof typeof Category];
 export const ROLE_LABELS_UZ: Record<Role, string> = {
   COMPANY: "Korxona",
   SCIENTIST: "Olim",
+  EXPERT: "Ekspert",
   ADMIN: "Administrator",
 };
 
@@ -63,7 +66,8 @@ export const PROBLEM_STATUS_LABELS_UZ: Record<ProblemStatus, string> = {
 };
 
 export const PROPOSAL_STATUS_LABELS_UZ: Record<ProposalStatus, string> = {
-  PENDING: "Kutilmoqda",
+  PENDING: "Ekspertizada",
+  EXPERT_APPROVED: "Kutilmoqda",
   ACCEPTED: "Qabul qilindi",
   REJECTED: "Rad etildi",
   WITHDRAWN: "Bekor qilindi",

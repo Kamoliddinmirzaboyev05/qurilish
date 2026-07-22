@@ -38,8 +38,8 @@ const bio = z
   .optional()
   .or(z.literal(""));
 
-const roleEnum = z.enum([Role.COMPANY, Role.SCIENTIST], {
-  errorMap: () => ({ message: "Rolni tanlang: Korxona yoki Olim." }),
+const roleEnum = z.enum([Role.COMPANY, Role.SCIENTIST, Role.EXPERT], {
+  errorMap: () => ({ message: "Rolni tanlang: Korxona, Olim yoki Ekspert." }),
 });
 
 export const registerSchema = z
@@ -197,3 +197,8 @@ export const paginationQuerySchema = z.object({
   page: z.coerce.number({ invalid_type_error: "Sahifa raqami noto'g'ri." }).int("Sahifa butun son bo'lishi kerak.").min(1, "Sahifa raqami kamida 1 bo'lishi kerak.").default(1),
   pageSize: z.coerce.number({ invalid_type_error: "Sahifa hajmi noto'g'ri." }).int("Sahifa hajmi butun son bo'lishi kerak.").min(1, "Sahifa hajmi kamida 1 bo'lishi kerak.").max(PAGINATION.MAX_PAGE_SIZE, `Sahifa hajmi ${PAGINATION.MAX_PAGE_SIZE} dan oshmasligi kerak.`).default(20),
 });
+
+export const expertReviewSchema = z.object({
+  status: z.enum(["APPROVE", "REJECT"], { errorMap: () => ({ message: "Noto'g'ri holat." }) }),
+});
+export type ExpertReviewInput = z.infer<typeof expertReviewSchema>;

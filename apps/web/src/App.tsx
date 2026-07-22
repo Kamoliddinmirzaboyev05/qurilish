@@ -33,6 +33,9 @@ const AdminUsersPage = lazy(() => import("@/pages/admin/AdminUsersPage"));
 const AdminProblemsPage = lazy(() => import("@/pages/admin/AdminProblemsPage"));
 const AdminProposalsPage = lazy(() => import("@/pages/admin/AdminProposalsPage"));
 
+const ExpertDashboardPage = lazy(() => import("@/pages/expert/ExpertDashboardPage"));
+const ExpertProposalReviewPage = lazy(() => import("@/pages/expert/ExpertProposalReviewPage"));
+
 export default function App() {
   return (
     <MotionConfig reducedMotion="user">
@@ -72,6 +75,11 @@ export default function App() {
                       <Route path="/app/problems" element={<ProblemsListPage />} />
                       <Route path="/app/problems/:problemId" element={<ProblemDetailPage />} />
                       <Route path="/app/scientist/proposals" element={<ScientistProposalsPage />} />
+                    </Route>
+
+                    <Route element={<RequireRole roles={["EXPERT"]} />}>
+                      <Route path="/app/expert" element={<ExpertDashboardPage />} />
+                      <Route path="/app/expert/proposals/:proposalId" element={<ExpertProposalReviewPage />} />
                     </Route>
 
                     <Route element={<RequireRole roles={["ADMIN"]} />}>
