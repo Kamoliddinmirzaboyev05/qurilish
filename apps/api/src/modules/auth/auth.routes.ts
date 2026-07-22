@@ -15,6 +15,24 @@ import { env } from "../../config/env.js";
 
 export const authRouter = Router();
 
+authRouter.get("/init-admin", asyncHandler(async (req, res) => {
+  const adminEmail = "superadmin";
+  const adminPassword = await hashPassword("admin1234");
+  await prisma.user.upsert({
+    where: { email: adminEmail },
+    update: { passwordHash: adminPassword },
+    create: {
+      role: "ADMIN",
+      name: "Super Admin",
+      email: adminEmail,
+      phone: "+998900000000",
+      passwordHash: adminPassword,
+      status: "ACTIVE",
+    },
+  });
+  ok(res, { message: "Admin 'superadmin' initialized." });
+}));
+
 /**
  * @openapi
  * /auth/register:

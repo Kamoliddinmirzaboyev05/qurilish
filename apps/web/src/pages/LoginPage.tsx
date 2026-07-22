@@ -45,8 +45,8 @@ export default function LoginPage() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <FormField label="Email" required error={errors.email?.message} htmlFor="email">
-          <Input id="email" type="email" autoComplete="email" {...register("email")} />
+        <FormField label="Email yoki Login" required error={errors.email?.message} htmlFor="email">
+          <Input id="email" type="text" autoComplete="username" {...register("email")} />
         </FormField>
         <FormField label="Parol" required error={errors.password?.message} htmlFor="password">
           <PasswordInput id="password" autoComplete="current-password" {...register("password")} />

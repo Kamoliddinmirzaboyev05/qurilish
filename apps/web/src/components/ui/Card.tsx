@@ -10,11 +10,25 @@ export function Card({ children, className }: { children: React.ReactNode; class
   );
 }
 
-export function StatCard({ label, value }: { label: string; value: string | number }) {
+export function StatCard({ label, value, icon, color = "brand" }: { label: string; value: string | number; icon?: React.ReactNode; color?: "brand" | "green" | "amber" | "red" }) {
+  const colorMap = {
+    brand: "bg-brand-primary/10 text-brand-primary",
+    green: "bg-emerald-100 text-emerald-600",
+    amber: "bg-amber-100 text-amber-600",
+    red: "bg-red-100 text-red-600",
+  };
+
   return (
-    <Card className="flex flex-col gap-1">
-      <span className="text-sm text-ink-muted">{label}</span>
-      <span className="text-2xl font-semibold text-brand-dark">{value}</span>
+    <Card className="flex items-start gap-4">
+      {icon && (
+        <div className={clsx("flex h-11 w-11 shrink-0 items-center justify-center rounded-xl", colorMap[color])}>
+          {icon}
+        </div>
+      )}
+      <div className="flex flex-col gap-0.5">
+        <span className="text-sm text-ink-muted">{label}</span>
+        <span className="text-2xl font-bold text-brand-dark">{value}</span>
+      </div>
     </Card>
   );
 }
@@ -44,7 +58,7 @@ export function ErrorState({ title = "Ma'lumotlarni yuklashda xatolik yuz berdi.
 }
 
 export function LoadingSkeleton({ className }: { className?: string }) {
-  return <div className={clsx("animate-pulse rounded-xl bg-slate-200/70", className)} />;
+  return <div className={clsx("animate-pulse rounded-xl bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 bg-[length:200%_100%] [animation:shimmer_1.5s_ease-in-out_infinite]", className)} />;
 }
 
 export function CardGridSkeleton({ count = 6 }: { count?: number }) {

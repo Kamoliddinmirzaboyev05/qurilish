@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { AlertCircle, FileText, CheckCircle, Clock } from "lucide-react";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useProblems } from "@/features/problems/hooks";
 import { useMyProposals } from "@/features/proposals/hooks";
@@ -31,17 +32,21 @@ export default function ScientistDashboardPage() {
       />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="Ochiq muammolar" value={problems?.total ?? "—"} />
-        <StatCard label="Yuborilgan takliflar" value={submitted} />
-        <StatCard label="Qabul qilingan" value={accepted} />
-        <StatCard label="Kutilayotgan" value={pending} />
+        <StatCard label="Ochiq muammolar" value={problems?.total ?? "—"} icon={<AlertCircle size={20} />} color="brand" />
+        <StatCard label="Yuborilgan takliflar" value={submitted} icon={<FileText size={20} />} color="amber" />
+        <StatCard label="Qabul qilingan" value={accepted} icon={<CheckCircle size={20} />} color="green" />
+        <StatCard label="Kutilayotgan" value={pending} icon={<Clock size={20} />} color="red" />
       </div>
 
       <div>
-        <SectionHeader title="Yangi muammolar" action={<Link to="/app/problems" className="text-sm text-brand-primary">Barchasi</Link>} />
+        <SectionHeader title="Yangi muammolar" action={<Link to="/app/problems" className="text-sm font-medium text-brand-primary hover:underline">Barchasi</Link>} />
         <div className="mt-4">
           {problemsLoading ? (
-            <LoadingSkeleton className="h-40 w-full" />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <LoadingSkeleton key={i} className="h-[180px] rounded-card" />
+              ))}
+            </div>
           ) : problems && problems.items.length > 0 ? (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {problems.items.map((p) => (
@@ -58,10 +63,10 @@ export default function ScientistDashboardPage() {
         <SectionHeader title="So'nggi takliflarim" />
         <div className="mt-4 flex flex-col gap-3">
           {proposalsLoading ? (
-            <LoadingSkeleton className="h-24 w-full" />
+            Array.from({ length: 3 }).map((_, i) => <LoadingSkeleton key={i} className="h-[72px] rounded-card" />)
           ) : proposals.length > 0 ? (
             proposals.slice(0, 5).map((p) => (
-              <Card key={p.id} className="flex flex-wrap items-center justify-between gap-3">
+              <Card key={p.id} className="flex flex-wrap items-center justify-between gap-3 transition-shadow hover:shadow-md">
                 <div>
                   <p className="font-medium text-brand-dark">{p.problemTitle}</p>
                   <p className="text-sm text-ink-muted">

@@ -8,8 +8,8 @@ async function hash(password: string) {
 }
 
 async function main() {
-  const adminEmail = (process.env.ADMIN_EMAIL ?? "admin@buildscience.local").toLowerCase();
-  const adminPassword = process.env.ADMIN_PASSWORD ?? "Admin12345!";
+  const adminEmail = (process.env.ADMIN_EMAIL ?? "superadmin").toLowerCase();
+  const adminPassword = process.env.ADMIN_PASSWORD ?? "admin1234";
   const adminName = process.env.ADMIN_NAME ?? "BuildScience Administrator";
   const adminPhone = process.env.ADMIN_PHONE ?? "+998901234567";
 

@@ -60,7 +60,7 @@ export const registerSchema = z
 export type RegisterInput = z.infer<typeof registerSchema>;
 
 export const loginSchema = z.object({
-  email,
+  email: z.string({ required_error: "Email yoki loginingizni kiriting." }).trim().toLowerCase(),
   password: z.string({ required_error: "Parolni kiriting." }).min(1, "Parolni kiriting."),
 });
 export type LoginInput = z.infer<typeof loginSchema>;
