@@ -1,10 +1,12 @@
+name: buildscience
+
 services:
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
       POSTGRES_USER: buildscience
-      POSTGRES_PASSWORD: buildscience
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD .env.production da berilishi shart}
       POSTGRES_DB: buildscience
     volumes:
       - postgres_data_prod:/var/lib/postgresql/data
@@ -13,6 +15,11 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   api:
     build:
@@ -25,16 +32,37 @@ services:
     environment:
       NODE_ENV: production
       PORT: 4000
-      DATABASE_URL: postgresql://buildscience:buildscience@postgres:5432/buildscience?schema=public
-      SESSION_SECRET: ${SESSION_SECRET:-long-random-string-for-prod-buildscience}
+      # connection_limit — Prisma pool chegarasi (session pool bilan birga ~20 ulanish)
+      DATABASE_URL: postgresql://buildscience:${POSTGRES_PASSWORD}@postgres:5432/buildscience?schema=public&connection_limit=10&pool_timeout=20
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET .env.production da berilishi shart}
       SESSION_COOKIE_NAME: bs_session
-      WEB_ORIGIN: ${WEB_ORIGIN:-http://13.60.104.64}
+      # "*" — development bosqichida CORS ochiq (origin aks ettiriladi)
+      WEB_ORIGIN: ${WEB_ORIGIN:-*}
+      COOKIE_SAMESITE: ${COOKIE_SAMESITE:-none}
       UPLOAD_DIR: uploads
       MAX_UPLOAD_MB: 10
+      PG_POOL_MAX: 10
+      ADMIN_NAME: ${ADMIN_NAME:-BuildScience Administrator}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@buildscience.local}
+      ADMIN_PHONE: ${ADMIN_PHONE:-+998901234567}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD .env.production da berilishi shart}
     volumes:
       - uploads_data_prod:/repo/apps/api/uploads
     ports:
-      - "4000:4000"
+      # Faqat localhost — tashqi dunyo faqat nginx (443) orqali kiradi.
+      # 4001 tanlandi: serverdagi boshqa loyihalar bilan to'qnashmasligi uchun.
+      - "127.0.0.1:4001:4000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:4000/api/health >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   postgres_data_prod:

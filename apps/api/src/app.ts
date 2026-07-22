@@ -24,7 +24,9 @@ app.set("trust proxy", 1);
 app.use(helmet());
 app.use(
   cors({
-    origin: env.webOrigin,
+    // WEB_ORIGIN="*" bo'lsa har qanday origin aks ettiriladi (development uchun ochiq),
+    // aks holda vergul bilan ajratilgan aniq ro'yxat ishlatiladi.
+    origin: env.corsOrigin,
     credentials: true,
   })
 );

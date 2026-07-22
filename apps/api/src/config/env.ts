@@ -1,12 +1,4 @@
-const REQUIRED = [
-  "DATABASE_URL",
-  "SESSION_SECRET",
-  "WEB_ORIGIN",
-  "ADMIN_EMAIL",
-  "ADMIN_PASSWORD",
-  "ADMIN_NAME",
-  "ADMIN_PHONE",
-] as const;
+const REQUIRED = ["DATABASE_URL", "SESSION_SECRET", "WEB_ORIGIN"] as const;
 
 for (const key of REQUIRED) {
   if (!process.env[key]) {
@@ -14,20 +6,36 @@ for (const key of REQUIRED) {
   }
 }
 
+const isProduction = process.env.NODE_ENV === "production";
+
+// ADMIN_* faqat seed uchun kerak — runtime'da majburiy emas.
+// Seed ishga tushganda o'zi tekshiradi (qarang: prisma/seed.ts).
+const rawWebOrigin = (process.env.WEB_ORIGIN as string).trim();
+
 export const env = {
   nodeEnv: process.env.NODE_ENV ?? "development",
-  isProduction: process.env.NODE_ENV === "production",
+  isProduction,
   port: Number(process.env.PORT ?? 4000),
   databaseUrl: process.env.DATABASE_URL as string,
   sessionSecret: process.env.SESSION_SECRET as string,
   sessionCookieName: process.env.SESSION_COOKIE_NAME ?? "bs_session",
-  webOrigin: process.env.WEB_ORIGIN as string,
+  /**
+   * CORS siyosati:
+   *  - "*"  → har qanday origin qabul qilinadi (credentials bilan ishlashi uchun
+   *           so'rov origin'i aks ettiriladi — literal "*" emas).
+   *  - vergul bilan ajratilgan ro'yxat → faqat shu originlar.
+   */
+  corsOrigin: rawWebOrigin === "*" ? true : rawWebOrigin.split(",").map((o) => o.trim()).filter(Boolean),
+  webOrigin: rawWebOrigin,
+  cookieSameSite: (process.env.COOKIE_SAMESITE as "lax" | "none" | "strict" | undefined) ?? (isProduction ? "none" : "lax"),
+  cookieSecure: process.env.COOKIE_SECURE ? process.env.COOKIE_SECURE === "1" : isProduction,
   uploadDir: process.env.UPLOAD_DIR ?? "uploads",
   maxUploadMb: Number(process.env.MAX_UPLOAD_MB ?? 10),
+  pgPoolMax: Number(process.env.PG_POOL_MAX ?? 10),
   admin: {
-    name: process.env.ADMIN_NAME as string,
-    email: (process.env.ADMIN_EMAIL as string).toLowerCase(),
-    phone: process.env.ADMIN_PHONE as string,
-    password: process.env.ADMIN_PASSWORD as string,
+    name: process.env.ADMIN_NAME ?? "",
+    email: (process.env.ADMIN_EMAIL ?? "").toLowerCase(),
+    phone: process.env.ADMIN_PHONE ?? "",
+    password: process.env.ADMIN_PASSWORD ?? "",
   },
 };

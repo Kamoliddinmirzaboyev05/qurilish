@@ -24,7 +24,6 @@ COPY --from=build /repo/packages/shared /repo/packages/shared
 COPY --from=build /repo/apps/api/dist /repo/apps/api/dist
 COPY --from=build /repo/apps/api/prisma /repo/apps/api/prisma
 COPY --from=build /repo/apps/api/package.json /repo/apps/api/package.json
-COPY --from=build /repo/apps/api/node_modules /repo/apps/api/node_modules
 
 WORKDIR /repo/apps/api
 RUN mkdir -p uploads
