@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import type { ProblemListItem } from "@buildscience/shared";
 import { Card } from "@/components/ui/Card";
@@ -6,13 +6,16 @@ import { CategoryBadge, ProblemStatusBadge } from "@/components/ui/Badge";
 import { formatMoney, formatProposalCount, formatRelative } from "@/lib/format";
 
 export function ProblemCard({ problem }: { problem: ProblemListItem }) {
+  const { pathname } = useLocation();
+  const base = pathname.startsWith("/app") ? "/app/problems" : "/problems";
+
   return (
     <Card className="flex flex-col gap-3 transition-shadow duration-150 hover:shadow-md">
       <div className="flex items-center justify-between gap-2">
         <CategoryBadge category={problem.category} />
         <ProblemStatusBadge status={problem.status} />
       </div>
-      <Link to={`/problems/${problem.id}`} className="line-clamp-2 text-base font-semibold text-brand-dark hover:text-brand-primary">
+      <Link to={`${base}/${problem.id}`} className="line-clamp-2 text-base font-semibold text-brand-dark hover:text-brand-primary">
         {problem.title}
       </Link>
       <p className="line-clamp-3 text-sm text-ink-muted">{problem.descriptionExcerpt}</p>
@@ -27,7 +30,7 @@ export function ProblemCard({ problem }: { problem: ProblemListItem }) {
         </div>
       </div>
       <Link
-        to={`/problems/${problem.id}`}
+        to={`${base}/${problem.id}`}
         className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-primary hover:text-brand-primaryHover"
       >
         Batafsil <ArrowRight size={16} />

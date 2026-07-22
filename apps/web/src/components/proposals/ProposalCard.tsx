@@ -3,6 +3,7 @@ import type { ProposalListItem } from "@buildscience/shared";
 import { Card } from "@/components/ui/Card";
 import { ProposalStatusBadge } from "@/components/ui/Badge";
 import { formatDate, formatMoney } from "@/lib/format";
+import { API_BASE } from "@/lib/api";
 
 export function ProposalCard({
   proposal,
@@ -44,7 +45,7 @@ export function ProposalCard({
         <span>{formatDate(proposal.createdAt)}</span>
         {proposal.attachmentOriginalName && (
           <a
-            href={`/api/proposals/${proposal.id}/attachment`}
+            href={`${API_BASE}/proposals/${proposal.id}/attachment`}
             target="_blank"
             rel="noreferrer"
             className="flex items-center gap-1 text-brand-primary hover:text-brand-primaryHover"

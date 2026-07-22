@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Pencil, ListChecks, XCircle } from "lucide-react";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useProblem, useCloseProblem } from "@/features/problems/hooks";
@@ -18,6 +18,8 @@ export default function ProblemDetailPage() {
   const { problemId } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const problemsBase = pathname.startsWith("/app") ? "/app/problems" : "/problems";
   const { data: problem, isLoading, isError, refetch } = useProblem(problemId);
   const { data: myProposals } = useMyProposals(user?.role === "SCIENTIST");
   const closeMutation = useCloseProblem();
@@ -56,7 +58,7 @@ export default function ProblemDetailPage() {
 
   return (
     <div className="mx-auto max-w-content px-4 py-10">
-      <Breadcrumb items={[{ label: "Muammolar", to: "/problems" }, { label: problem.title }]} />
+      <Breadcrumb items={[{ label: "Muammolar", to: problemsBase }, { label: problem.title }]} />
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
         <Card className="flex flex-col gap-4 lg:col-span-2">

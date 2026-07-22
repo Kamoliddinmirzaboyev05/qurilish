@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/Button";
 import { Pagination } from "@/components/ui/Pagination";
 import { ConfirmationDialog, Modal } from "@/components/ui/Modal";
 import { notify } from "@/components/ui/toast";
-import { ApiRequestError } from "@/lib/api";
+import { ApiRequestError, API_BASE } from "@/lib/api";
 import { formatDate, formatMoney } from "@/lib/format";
 
 const sortOptions = [
@@ -82,7 +82,7 @@ export default function AdminProposalsPage() {
                 </Button>
                 {proposal.attachmentOriginalName && (
                   <a
-                    href={`/api/proposals/${proposal.id}/attachment`}
+                    href={`${API_BASE}/proposals/${proposal.id}/attachment`}
                     target="_blank"
                     rel="noreferrer"
                     className="text-sm font-medium text-brand-primary"

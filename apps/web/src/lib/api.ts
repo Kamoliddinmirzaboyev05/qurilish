@@ -17,7 +17,7 @@ type RequestOptions = {
   isFormData?: boolean;
 };
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "/api";
+export const API_BASE = import.meta.env.VITE_API_URL ?? "/api";
 
 async function request<T>(url: string, options: RequestOptions = {}): Promise<T> {
   const { method = "GET", body, isFormData } = options;

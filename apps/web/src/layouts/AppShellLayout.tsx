@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { Menu, X, LogOut } from "lucide-react";
 import { LogoWithText } from "@/components/shared/Logo";
 import { UserAvatar } from "@/components/ui/Avatar";
 import { useAuth } from "@/features/auth/AuthContext";
 import { api } from "@/lib/api";
+import { PageLoader } from "@/routes/guards";
 import clsx from "clsx";
 
 interface NavItem {
@@ -22,7 +23,7 @@ const navByRole: Record<string, NavItem[]> = {
   ],
   SCIENTIST: [
     { label: "Boshqaruv paneli", to: "/app/scientist", end: true },
-    { label: "Muammolar banki", to: "/problems" },
+    { label: "Muammolar banki", to: "/app/problems" },
     { label: "Takliflarim", to: "/app/scientist/proposals" },
     { label: "Bog'lanishlar", to: "/app/connections" },
     { label: "Profil", to: "/app/profile" },
@@ -75,7 +76,7 @@ export function AppShellLayout() {
 
   return (
     <div className="flex min-h-screen bg-surface-page">
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-surface-border bg-white p-5 md:flex">
+      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col overflow-y-auto border-r border-surface-border bg-white p-5 md:flex">
         <Link to="/" className="mb-8">
           <LogoWithText size={26} />
         </Link>
@@ -119,7 +120,9 @@ export function AppShellLayout() {
 
         <main className="flex-1 p-4 sm:p-6">
           <div className="mx-auto max-w-content">
-            <Outlet />
+            <Suspense fallback={<PageLoader />}>
+              <Outlet />
+            </Suspense>
           </div>
         </main>
       </div>

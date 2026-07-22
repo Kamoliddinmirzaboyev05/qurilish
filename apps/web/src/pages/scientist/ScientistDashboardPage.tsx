@@ -24,7 +24,7 @@ export default function ScientistDashboardPage() {
       <PageHeader
         title={`Xush kelibsiz, ${user?.name}`}
         action={
-          <Button asLink to="/problems">
+          <Button asLink to="/app/problems">
             Muammolarni ko'rish
           </Button>
         }
@@ -38,7 +38,7 @@ export default function ScientistDashboardPage() {
       </div>
 
       <div>
-        <SectionHeader title="Yangi muammolar" action={<Link to="/problems" className="text-sm text-brand-primary">Barchasi</Link>} />
+        <SectionHeader title="Yangi muammolar" action={<Link to="/app/problems" className="text-sm text-brand-primary">Barchasi</Link>} />
         <div className="mt-4">
           {problemsLoading ? (
             <LoadingSkeleton className="h-40 w-full" />

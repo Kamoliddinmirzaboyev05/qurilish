@@ -14,7 +14,7 @@ import { ProblemStatusBadge, ProposalStatusBadge } from "@/components/ui/Badge";
 import { ConfirmationDialog } from "@/components/ui/Modal";
 import { ConnectionCard } from "@/components/shared/ConnectionCard";
 import { notify } from "@/components/ui/toast";
-import { ApiRequestError } from "@/lib/api";
+import { ApiRequestError, API_BASE } from "@/lib/api";
 import { formatDate, formatMoney } from "@/lib/format";
 
 const sortOptions = [
@@ -121,7 +121,7 @@ export default function CompanyProblemProposalsPage() {
                 <span>{proposal.estimatedDays} kun</span>
                 <span>{formatDate(proposal.createdAt)}</span>
                 {proposal.attachmentOriginalName && (
-                  <a href={`/api/proposals/${proposal.id}/attachment`} target="_blank" rel="noreferrer" className="text-brand-primary">
+                  <a href={`${API_BASE}/proposals/${proposal.id}/attachment`} target="_blank" rel="noreferrer" className="text-brand-primary">
                     {proposal.attachmentOriginalName}
                   </a>
                 )}

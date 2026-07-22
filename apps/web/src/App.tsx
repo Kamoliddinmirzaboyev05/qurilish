@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { MotionConfig } from "motion/react";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -7,7 +7,7 @@ import { AuthProvider } from "@/features/auth/AuthContext";
 import { Toaster } from "@/components/ui/toast";
 import { PublicLayout } from "@/layouts/PublicLayout";
 import { AppShellLayout } from "@/layouts/AppShellLayout";
-import { RequireAuth, RequireGuest, RequireRole, FullScreenLoader } from "@/routes/guards";
+import { RequireAuth, RequireGuest, RequireRole } from "@/routes/guards";
 
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const ProblemsListPage = lazy(() => import("@/pages/ProblemsListPage"));
@@ -40,8 +40,7 @@ export default function App() {
         <AuthProvider>
           <BrowserRouter>
             <Toaster position="top-center" />
-            <Suspense fallback={<FullScreenLoader />}>
-              <Routes>
+            <Routes>
                 <Route element={<PublicLayout />}>
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/problems" element={<ProblemsListPage />} />
@@ -70,6 +69,8 @@ export default function App() {
 
                     <Route element={<RequireRole roles={["SCIENTIST"]} />}>
                       <Route path="/app/scientist" element={<ScientistDashboardPage />} />
+                      <Route path="/app/problems" element={<ProblemsListPage />} />
+                      <Route path="/app/problems/:problemId" element={<ProblemDetailPage />} />
                       <Route path="/app/scientist/proposals" element={<ScientistProposalsPage />} />
                     </Route>
 
@@ -82,7 +83,6 @@ export default function App() {
                   </Route>
                 </Route>
               </Routes>
-            </Suspense>
           </BrowserRouter>
         </AuthProvider>
       </QueryClientProvider>
