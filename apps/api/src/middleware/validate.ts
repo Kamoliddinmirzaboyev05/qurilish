@@ -29,7 +29,7 @@ export function validateQuery(schema: ZodSchema) {
       }
       return next(AppError.unprocessable("So'rov parametrlarida xatolik bor.", errors));
     }
-    req.query = result.data as never;
+    req.query = { ...req.query, ...(result.data as Record<string, unknown>) } as never;
     next();
   };
 }
