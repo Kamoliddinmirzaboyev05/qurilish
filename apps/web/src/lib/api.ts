@@ -17,10 +17,12 @@ type RequestOptions = {
   isFormData?: boolean;
 };
 
+const API_BASE = import.meta.env.VITE_API_URL ?? "/api";
+
 async function request<T>(url: string, options: RequestOptions = {}): Promise<T> {
   const { method = "GET", body, isFormData } = options;
 
-  const res = await fetch(`/api${url}`, {
+  const res = await fetch(`${API_BASE}${url}`, {
     method,
     credentials: "include",
     headers: isFormData ? undefined : body ? { "Content-Type": "application/json" } : undefined,

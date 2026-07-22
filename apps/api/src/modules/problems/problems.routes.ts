@@ -12,6 +12,36 @@ import { toProblemDetail, toProblemListItem } from "./problems.serializers.js";
 
 export const problemsRouter = Router();
 
+/**
+ * @openapi
+ * /problems:
+ *   get:
+ *     tags: [Problems]
+ *     summary: Ochiq muammolar ro'yxati (filtr/qidiruv/sahifalash)
+ *     security: []
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema: { type: string }
+ *       - in: query
+ *         name: category
+ *         schema: { type: string }
+ *       - in: query
+ *         name: budgetType
+ *         schema: { type: string }
+ *       - in: query
+ *         name: sort
+ *         schema: { type: string, enum: [newest, oldest, budgetHigh, budgetLow] }
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer }
+ *       - in: query
+ *         name: pageSize
+ *         schema: { type: integer }
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 problemsRouter.get(
   "/problems",
   validateQuery(problemQuerySchema),
@@ -58,6 +88,26 @@ problemsRouter.get(
   })
 );
 
+/**
+ * @openapi
+ * /company/problems:
+ *   get:
+ *     tags: [Problems]
+ *     summary: Kompaniyaning o'z muammolari ro'yxati (COMPANY)
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer }
+ *       - in: query
+ *         name: pageSize
+ *         schema: { type: integer }
+ *       - in: query
+ *         name: status
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 problemsRouter.get(
   "/company/problems",
   requireAuth,
@@ -89,6 +139,16 @@ problemsRouter.get(
   })
 );
 
+/**
+ * @openapi
+ * /company/stats:
+ *   get:
+ *     tags: [Problems]
+ *     summary: Kompaniya statistikasi (COMPANY)
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 problemsRouter.get(
   "/company/stats",
   requireAuth,
@@ -127,6 +187,24 @@ async function loadVisibleProblem(problemId: string, userId?: string, userRole?:
   throw AppError.notFound("Muammo topilmadi.");
 }
 
+/**
+ * @openapi
+ * /problems/{problemId}:
+ *   get:
+ *     tags: [Problems]
+ *     summary: Muammo tafsiloti
+ *     security: []
+ *     parameters:
+ *       - in: path
+ *         name: problemId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: OK
+ *       404:
+ *         description: Topilmadi
+ */
 problemsRouter.get(
   "/problems/:problemId",
   optionalAuth,
@@ -136,6 +214,29 @@ problemsRouter.get(
   })
 );
 
+/**
+ * @openapi
+ * /problems:
+ *   post:
+ *     tags: [Problems]
+ *     summary: Yangi muammo yaratish (COMPANY)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [title, description, category, budgetType]
+ *             properties:
+ *               title: { type: string }
+ *               description: { type: string }
+ *               category: { type: string }
+ *               budgetType: { type: string }
+ *               budgetAmount: { type: number, nullable: true }
+ *     responses:
+ *       201:
+ *         description: Yaratildi
+ */
 problemsRouter.post(
   "/problems",
   requireAuth,
@@ -165,6 +266,34 @@ async function loadOwnedOpenProblem(problemId: string, companyId: string) {
   return problem;
 }
 
+/**
+ * @openapi
+ * /problems/{problemId}:
+ *   patch:
+ *     tags: [Problems]
+ *     summary: Muammoni tahrirlash (faqat OPEN holatda, COMPANY egasi)
+ *     parameters:
+ *       - in: path
+ *         name: problemId
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [title, description, category, budgetType]
+ *             properties:
+ *               title: { type: string }
+ *               description: { type: string }
+ *               category: { type: string }
+ *               budgetType: { type: string }
+ *               budgetAmount: { type: number, nullable: true }
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 problemsRouter.patch(
   "/problems/:problemId",
   requireAuth,
@@ -190,6 +319,21 @@ problemsRouter.patch(
   })
 );
 
+/**
+ * @openapi
+ * /problems/{problemId}:
+ *   delete:
+ *     tags: [Problems]
+ *     summary: Muammoni o'chirish (takliflari bo'lmasa, COMPANY egasi)
+ *     parameters:
+ *       - in: path
+ *         name: problemId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       204:
+ *         description: O'chirildi
+ */
 problemsRouter.delete(
   "/problems/:problemId",
   requireAuth,
@@ -205,6 +349,21 @@ problemsRouter.delete(
   })
 );
 
+/**
+ * @openapi
+ * /problems/{problemId}/close:
+ *   post:
+ *     tags: [Problems]
+ *     summary: Muammoni yopish (COMPANY egasi) — kutilayotgan takliflar rad etiladi
+ *     parameters:
+ *       - in: path
+ *         name: problemId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 problemsRouter.post(
   "/problems/:problemId/close",
   requireAuth,

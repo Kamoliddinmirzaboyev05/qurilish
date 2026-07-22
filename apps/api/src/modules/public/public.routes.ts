@@ -6,6 +6,17 @@ import type { PublicStats } from "@buildscience/shared";
 
 export const publicRouter = Router();
 
+/**
+ * @openapi
+ * /public/stats:
+ *   get:
+ *     tags: [Public]
+ *     summary: Bosh sahifa uchun umumiy statistika
+ *     security: []
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 publicRouter.get(
   "/stats",
   asyncHandler(async (_req, res) => {

@@ -19,6 +19,16 @@ function sortOrder(req: { query: Record<string, unknown> }): "asc" | "desc" {
   return req.query.sort === "oldest" ? "asc" : "desc";
 }
 
+/**
+ * @openapi
+ * /admin/stats:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Umumiy tizim statistikasi (ADMIN)
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 adminRouter.get(
   "/stats",
   asyncHandler(async (_req, res) => {
@@ -45,6 +55,32 @@ adminRouter.get(
   })
 );
 
+/**
+ * @openapi
+ * /admin/users:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Foydalanuvchilar ro'yxati (ADMIN)
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema: { type: string }
+ *       - in: query
+ *         name: role
+ *         schema: { type: string }
+ *       - in: query
+ *         name: status
+ *         schema: { type: string }
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer }
+ *       - in: query
+ *         name: pageSize
+ *         schema: { type: integer }
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 adminRouter.get(
   "/users",
   validateQuery(paginationQuerySchema),
@@ -77,6 +113,30 @@ adminRouter.get(
   })
 );
 
+/**
+ * @openapi
+ * /admin/users/{userId}/status:
+ *   patch:
+ *     tags: [Admin]
+ *     summary: Foydalanuvchi holatini o'zgartirish — ACTIVE/BLOCKED (ADMIN)
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [status]
+ *             properties:
+ *               status: { type: string, enum: [ACTIVE, BLOCKED] }
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 adminRouter.patch(
   "/users/:userId/status",
   validateBody(adminUserStatusSchema),
@@ -92,6 +152,21 @@ adminRouter.patch(
   })
 );
 
+/**
+ * @openapi
+ * /admin/users/{userId}:
+ *   delete:
+ *     tags: [Admin]
+ *     summary: Foydalanuvchini o'chirish (soft delete, ADMIN)
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       204:
+ *         description: O'chirildi
+ */
 adminRouter.delete(
   "/users/:userId",
   asyncHandler(async (req, res) => {
@@ -106,6 +181,32 @@ adminRouter.delete(
   })
 );
 
+/**
+ * @openapi
+ * /admin/problems:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Barcha muammolar ro'yxati (ADMIN)
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema: { type: string }
+ *       - in: query
+ *         name: category
+ *         schema: { type: string }
+ *       - in: query
+ *         name: status
+ *         schema: { type: string }
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer }
+ *       - in: query
+ *         name: pageSize
+ *         schema: { type: integer }
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 adminRouter.get(
   "/problems",
   validateQuery(paginationQuerySchema),
@@ -136,6 +237,21 @@ adminRouter.get(
   })
 );
 
+/**
+ * @openapi
+ * /admin/problems/{problemId}:
+ *   delete:
+ *     tags: [Admin]
+ *     summary: Muammoni o'chirish (soft delete, ADMIN)
+ *     parameters:
+ *       - in: path
+ *         name: problemId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       204:
+ *         description: O'chirildi
+ */
 adminRouter.delete(
   "/problems/:problemId",
   asyncHandler(async (req, res) => {
@@ -146,6 +262,29 @@ adminRouter.delete(
   })
 );
 
+/**
+ * @openapi
+ * /admin/proposals:
+ *   get:
+ *     tags: [Admin]
+ *     summary: Barcha takliflar ro'yxati (ADMIN)
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema: { type: string }
+ *       - in: query
+ *         name: status
+ *         schema: { type: string }
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer }
+ *       - in: query
+ *         name: pageSize
+ *         schema: { type: integer }
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 adminRouter.get(
   "/proposals",
   validateQuery(paginationQuerySchema),
@@ -181,6 +320,21 @@ adminRouter.get(
   })
 );
 
+/**
+ * @openapi
+ * /admin/proposals/{proposalId}:
+ *   delete:
+ *     tags: [Admin]
+ *     summary: Taklifni o'chirish (soft delete, ADMIN)
+ *     parameters:
+ *       - in: path
+ *         name: proposalId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       204:
+ *         description: O'chirildi
+ */
 adminRouter.delete(
   "/proposals/:proposalId",
   asyncHandler(async (req, res) => {

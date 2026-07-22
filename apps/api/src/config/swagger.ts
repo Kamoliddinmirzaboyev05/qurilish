@@ -11,7 +11,7 @@ const options: swaggerJsdoc.Options = {
     },
     servers: [
       {
-        url: env.isProduction ? "https://your-production-url.com/api" : `http://localhost:${env.port}/api`,
+        url: env.isProduction ? "https://qurilishapi.webportfolio.uz/api" : `http://localhost:${env.port}/api`,
         description: env.isProduction ? "Production server" : "Development server",
       },
     ],
@@ -30,7 +30,9 @@ const options: swaggerJsdoc.Options = {
       },
     ],
   },
-  apis: ["./src/modules/**/*.routes.ts", "./src/modules/**/*.ts"],
+  apis: env.isProduction
+    ? ["./dist/modules/**/*.routes.js", "./dist/modules/**/*.js"]
+    : ["./src/modules/**/*.routes.ts", "./src/modules/**/*.ts"],
 };
 
 export const swaggerSpec = swaggerJsdoc(options);

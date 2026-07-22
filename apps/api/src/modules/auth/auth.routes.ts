@@ -15,6 +15,33 @@ import { env } from "../../config/env.js";
 
 export const authRouter = Router();
 
+/**
+ * @openapi
+ * /auth/register:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Ro'yxatdan o'tish (COMPANY yoki SCIENTIST)
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [role, name, email, phone, password, passwordConfirm]
+ *             properties:
+ *               role: { type: string, enum: [COMPANY, SCIENTIST] }
+ *               name: { type: string }
+ *               email: { type: string }
+ *               phone: { type: string }
+ *               password: { type: string }
+ *               passwordConfirm: { type: string }
+ *               organization: { type: string }
+ *               specialization: { type: string }
+ *     responses:
+ *       201:
+ *         description: Ro'yxatdan o'tildi, sessiya ochildi
+ */
 authRouter.post(
   "/register",
   authLimiter,
@@ -26,6 +53,27 @@ authRouter.post(
   })
 );
 
+/**
+ * @openapi
+ * /auth/login:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Tizimga kirish
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, password]
+ *             properties:
+ *               email: { type: string }
+ *               password: { type: string }
+ *     responses:
+ *       200:
+ *         description: Kirildi, sessiya ochildi
+ */
 authRouter.post(
   "/login",
   authLimiter,
@@ -37,6 +85,16 @@ authRouter.post(
   })
 );
 
+/**
+ * @openapi
+ * /auth/logout:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Tizimdan chiqish
+ *     responses:
+ *       200:
+ *         description: Chiqildi
+ */
 authRouter.post("/logout", (req, res) => {
   req.session.destroy(() => {
     res.clearCookie(env.sessionCookieName);
@@ -44,6 +102,16 @@ authRouter.post("/logout", (req, res) => {
   });
 });
 
+/**
+ * @openapi
+ * /auth/me:
+ *   get:
+ *     tags: [Auth]
+ *     summary: Joriy foydalanuvchi ma'lumotlari
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 authRouter.get(
   "/me",
   requireAuth,
@@ -52,6 +120,29 @@ authRouter.get(
   })
 );
 
+/**
+ * @openapi
+ * /auth/profile:
+ *   patch:
+ *     tags: [Auth]
+ *     summary: Profilni yangilash
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name, phone]
+ *             properties:
+ *               name: { type: string }
+ *               phone: { type: string }
+ *               organization: { type: string }
+ *               specialization: { type: string }
+ *               bio: { type: string }
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 authRouter.patch(
   "/profile",
   requireAuth,
@@ -71,6 +162,27 @@ authRouter.patch(
   })
 );
 
+/**
+ * @openapi
+ * /auth/password:
+ *   patch:
+ *     tags: [Auth]
+ *     summary: Parolni almashtirish
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [currentPassword, newPassword, confirmPassword]
+ *             properties:
+ *               currentPassword: { type: string }
+ *               newPassword: { type: string }
+ *               confirmPassword: { type: string }
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 authRouter.patch(
   "/password",
   requireAuth,

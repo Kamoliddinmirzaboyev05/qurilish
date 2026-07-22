@@ -8,6 +8,16 @@ import type { ConnectionCompanyView, ConnectionScientistView } from "@buildscien
 
 export const connectionsRouter = Router();
 
+/**
+ * @openapi
+ * /connections:
+ *   get:
+ *     tags: [Connections]
+ *     summary: Qabul qilingan takliflar bo'yicha bog'lanishlar ro'yxati (COMPANY/SCIENTIST)
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 connectionsRouter.get(
   "/",
   requireAuth,
@@ -55,6 +65,21 @@ connectionsRouter.get(
   })
 );
 
+/**
+ * @openapi
+ * /connections/{proposalId}:
+ *   get:
+ *     tags: [Connections]
+ *     summary: Bitta bog'lanish tafsiloti
+ *     parameters:
+ *       - in: path
+ *         name: proposalId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 connectionsRouter.get(
   "/:proposalId",
   requireAuth,

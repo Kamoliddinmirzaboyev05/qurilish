@@ -5,6 +5,17 @@ import { ok } from "../../utils/response.js";
 
 export const healthRouter = Router();
 
+/**
+ * @openapi
+ * /health:
+ *   get:
+ *     tags: [Health]
+ *     summary: API va bazaning holatini tekshirish
+ *     security: []
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 healthRouter.get(
   "/",
   asyncHandler(async (_req, res) => {

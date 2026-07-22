@@ -12,6 +12,16 @@ import { toProposalListItem } from "./proposals.serializers.js";
 
 export const proposalsRouter = Router();
 
+/**
+ * @openapi
+ * /company/proposals/recent:
+ *   get:
+ *     tags: [Proposals]
+ *     summary: Kompaniyaning so'nggi 5 ta taklifi (COMPANY)
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 proposalsRouter.get(
   "/company/proposals/recent",
   requireAuth,
@@ -47,6 +57,34 @@ async function removeFileSafely(storedName: string | null) {
   }
 }
 
+/**
+ * @openapi
+ * /problems/{problemId}/proposals:
+ *   post:
+ *     tags: [Proposals]
+ *     summary: Muammoga taklif yuborish (SCIENTIST, fayl ilova qilish mumkin)
+ *     parameters:
+ *       - in: path
+ *         name: problemId
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required: [solutionText, estimatedDays, priceNegotiable]
+ *             properties:
+ *               solutionText: { type: string }
+ *               estimatedDays: { type: integer }
+ *               priceNegotiable: { type: boolean }
+ *               proposedPrice: { type: number, nullable: true }
+ *               attachment: { type: string, format: binary }
+ *     responses:
+ *       201:
+ *         description: Yuborildi
+ */
 proposalsRouter.post(
   "/problems/:problemId/proposals",
   requireAuth,
@@ -103,6 +141,21 @@ proposalsRouter.post(
   })
 );
 
+/**
+ * @openapi
+ * /problems/{problemId}/proposals:
+ *   get:
+ *     tags: [Proposals]
+ *     summary: Muammoga kelgan takliflar ro'yxati (COMPANY egasi yoki ADMIN)
+ *     parameters:
+ *       - in: path
+ *         name: problemId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 proposalsRouter.get(
   "/problems/:problemId/proposals",
   requireAuth,
@@ -123,6 +176,16 @@ proposalsRouter.get(
   })
 );
 
+/**
+ * @openapi
+ * /proposals/mine:
+ *   get:
+ *     tags: [Proposals]
+ *     summary: O'zimning takliflarim (SCIENTIST)
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 proposalsRouter.get(
   "/proposals/mine",
   requireAuth,
@@ -152,6 +215,21 @@ async function loadProposalWithAccess(proposalId: string, userId: string, role: 
   return proposal;
 }
 
+/**
+ * @openapi
+ * /proposals/{proposalId}:
+ *   get:
+ *     tags: [Proposals]
+ *     summary: Taklif tafsiloti (egasi, muammo kompaniyasi yoki ADMIN)
+ *     parameters:
+ *       - in: path
+ *         name: proposalId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 proposalsRouter.get(
   "/proposals/:proposalId",
   requireAuth,
@@ -161,6 +239,34 @@ proposalsRouter.get(
   })
 );
 
+/**
+ * @openapi
+ * /proposals/{proposalId}:
+ *   patch:
+ *     tags: [Proposals]
+ *     summary: Taklifni tahrirlash (faqat PENDING, SCIENTIST egasi)
+ *     parameters:
+ *       - in: path
+ *         name: proposalId
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required: [solutionText, estimatedDays, priceNegotiable]
+ *             properties:
+ *               solutionText: { type: string }
+ *               estimatedDays: { type: integer }
+ *               priceNegotiable: { type: boolean }
+ *               proposedPrice: { type: number, nullable: true }
+ *               attachment: { type: string, format: binary }
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 proposalsRouter.patch(
   "/proposals/:proposalId",
   requireAuth,
@@ -228,6 +334,21 @@ proposalsRouter.patch(
   })
 );
 
+/**
+ * @openapi
+ * /proposals/{proposalId}/withdraw:
+ *   post:
+ *     tags: [Proposals]
+ *     summary: Taklifni bekor qilish (faqat PENDING, SCIENTIST egasi)
+ *     parameters:
+ *       - in: path
+ *         name: proposalId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 proposalsRouter.post(
   "/proposals/:proposalId/withdraw",
   requireAuth,
@@ -247,6 +368,21 @@ proposalsRouter.post(
   })
 );
 
+/**
+ * @openapi
+ * /proposals/{proposalId}/accept:
+ *   post:
+ *     tags: [Proposals]
+ *     summary: Taklifni qabul qilish (COMPANY egasi) — muammo MATCHED bo'ladi, qolgan takliflar rad etiladi
+ *     parameters:
+ *       - in: path
+ *         name: proposalId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 proposalsRouter.post(
   "/proposals/:proposalId/accept",
   requireAuth,
@@ -293,6 +429,26 @@ proposalsRouter.post(
   })
 );
 
+/**
+ * @openapi
+ * /proposals/{proposalId}/attachment:
+ *   get:
+ *     tags: [Proposals]
+ *     summary: Taklifga ilova qilingan faylni yuklab olish
+ *     parameters:
+ *       - in: path
+ *         name: proposalId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Fayl
+ *         content:
+ *           application/octet-stream:
+ *             schema: { type: string, format: binary }
+ *       404:
+ *         description: Fayl mavjud emas
+ */
 proposalsRouter.get(
   "/proposals/:proposalId/attachment",
   requireAuth,
