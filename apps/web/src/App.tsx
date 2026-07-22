@@ -21,6 +21,7 @@ const CompanyDashboardPage = lazy(() => import("@/pages/company/CompanyDashboard
 const CompanyProblemsPage = lazy(() => import("@/pages/company/CompanyProblemsPage"));
 const CompanyProblemFormPage = lazy(() => import("@/pages/company/CompanyProblemFormPage"));
 const CompanyProblemProposalsPage = lazy(() => import("@/pages/company/CompanyProblemProposalsPage"));
+const CompanyProposalsPage = lazy(() => import("@/pages/company/CompanyProposalsPage"));
 
 const ScientistDashboardPage = lazy(() => import("@/pages/scientist/ScientistDashboardPage"));
 const ScientistProposalsPage = lazy(() => import("@/pages/scientist/ScientistProposalsPage"));
@@ -65,6 +66,7 @@ export default function App() {
                     <Route element={<RequireRole roles={["COMPANY"]} />}>
                       <Route path="/app/company" element={<CompanyDashboardPage />} />
                       <Route path="/app/company/problems" element={<CompanyProblemsPage />} />
+                      <Route path="/app/company/proposals" element={<CompanyProposalsPage />} />
                       <Route path="/app/company/problems/new" element={<CompanyProblemFormPage />} />
                       <Route path="/app/company/problems/:problemId/edit" element={<CompanyProblemFormPage />} />
                       <Route path="/app/company/problems/:problemId/proposals" element={<CompanyProblemProposalsPage />} />

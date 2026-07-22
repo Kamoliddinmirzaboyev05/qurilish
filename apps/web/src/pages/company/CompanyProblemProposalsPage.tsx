@@ -110,6 +110,7 @@ export default function CompanyProblemProposalsPage() {
                   <p className="text-sm text-ink-muted">
                     {[proposal.specialization, proposal.organization].filter(Boolean).join(" · ")}
                   </p>
+                  {proposal.scientistBio && <p className="mt-1 text-sm text-ink-muted">{proposal.scientistBio}</p>}
                 </div>
                 <ProposalStatusBadge status={proposal.status} />
               </div>

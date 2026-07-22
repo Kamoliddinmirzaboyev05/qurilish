@@ -1,11 +1,13 @@
 import { Router } from "express";
 import path from "node:path";
 import fs from "node:fs/promises";
-import { createProposalSchema, updateProposalSchema, expertReviewSchema } from "@buildscience/shared";
+import type { Prisma } from "@prisma/client";
+import { createProposalSchema, updateProposalSchema, expertReviewSchema, paginationQuerySchema } from "@buildscience/shared";
 import { requireAuth, requireRole } from "../../middleware/auth.js";
+import { validateQuery } from "../../middleware/validate.js";
 import { handleProposalUpload, uploadRoot } from "../../middleware/upload.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
-import { ok } from "../../utils/response.js";
+import { ok, paginate } from "../../utils/response.js";
 import { AppError } from "../../utils/AppError.js";
 import { prisma } from "../../services/prisma.js";
 import { toProposalListItem } from "./proposals.serializers.js";
@@ -34,6 +36,56 @@ proposalsRouter.get(
       include: { scientist: true, problem: { include: { company: true } } },
     });
     ok(res, { items: proposals.map(toProposalListItem) });
+  })
+);
+
+/**
+ * @openapi
+ * /company/proposals:
+ *   get:
+ *     tags: [Proposals]
+ *     summary: Kompaniyaning barcha muammolariga kelgan takliflar (sahifalangan, COMPANY)
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         schema: { type: string }
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer }
+ *       - in: query
+ *         name: pageSize
+ *         schema: { type: integer }
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+proposalsRouter.get(
+  "/company/proposals",
+  requireAuth,
+  requireRole("COMPANY"),
+  validateQuery(paginationQuerySchema),
+  asyncHandler(async (req, res) => {
+    const { page, pageSize } = paginationQuerySchema.parse(req.query);
+    const status = typeof req.query.status === "string" ? req.query.status : undefined;
+
+    const where: Prisma.ProposalWhereInput = {
+      deletedAt: null,
+      problem: { companyId: req.user!.id, deletedAt: null },
+      ...(status && status !== "ALL" ? { status: status as Prisma.EnumProposalStatusFilter["equals"] } : {}),
+    };
+
+    const [proposals, total] = await Promise.all([
+      prisma.proposal.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        include: { scientist: true, problem: { include: { company: true } } },
+      }),
+      prisma.proposal.count({ where }),
+    ]);
+
+    ok(res, paginate(proposals.map(toProposalListItem), page, pageSize, total));
   })
 );
 

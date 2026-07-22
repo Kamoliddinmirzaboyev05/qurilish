@@ -11,6 +11,7 @@ export function toProposalListItem(proposal: ProposalWithScientist): ProposalLis
     scientistName: proposal.scientist.name,
     specialization: proposal.scientist.specialization,
     organization: proposal.scientist.organization,
+    scientistBio: proposal.scientist.bio,
     solutionText: proposal.solutionText,
     estimatedDays: proposal.estimatedDays,
     priceNegotiable: proposal.priceNegotiable,

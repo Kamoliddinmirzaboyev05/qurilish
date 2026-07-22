@@ -115,6 +115,11 @@ export default function AdminProposalsPage() {
                 {[viewTarget.specialization, viewTarget.organization].filter(Boolean).join(" · ")}
               </p>
             )}
+            {viewTarget.scientistBio && (
+              <p>
+                <span className="text-ink-muted">Bio:</span> {viewTarget.scientistBio}
+              </p>
+            )}
             <p>
               <span className="text-ink-muted">Narx:</span>{" "}
               {viewTarget.priceNegotiable ? "Kelishiladi" : formatMoney(viewTarget.proposedPrice)}

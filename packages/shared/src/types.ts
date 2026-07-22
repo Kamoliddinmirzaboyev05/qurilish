@@ -62,6 +62,7 @@ export interface ProposalListItem {
   scientistName: string;
   specialization: string | null;
   organization: string | null;
+  scientistBio: string | null;
   solutionText: string;
   estimatedDays: number;
   priceNegotiable: boolean;

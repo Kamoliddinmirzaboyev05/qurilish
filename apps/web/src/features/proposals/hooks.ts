@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { ProposalListItem } from "@buildscience/shared";
+import type { Paginated, ProposalListItem } from "@buildscience/shared";
 import { api } from "@/lib/api";
+import { toQueryString } from "@/lib/query";
 
 export function useProblemProposals(problemId: string | undefined) {
   return useQuery({
@@ -14,6 +15,13 @@ export function useCompanyRecentProposals() {
   return useQuery({
     queryKey: ["company-recent-proposals"],
     queryFn: () => api.get<{ items: ProposalListItem[] }>("/company/proposals/recent"),
+  });
+}
+
+export function useCompanyProposals(status: string, page: number) {
+  return useQuery({
+    queryKey: ["company-proposals", status, page],
+    queryFn: () => api.get<Paginated<ProposalListItem>>(`/company/proposals${toQueryString({ status, page, pageSize: 20 })}`),
   });
 }
 

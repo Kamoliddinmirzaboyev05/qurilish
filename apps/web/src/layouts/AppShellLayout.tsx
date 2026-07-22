@@ -1,6 +1,6 @@
-import { Suspense, useState } from "react";
+import { Suspense, useState, useRef, useEffect } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import { Menu, X, LogOut } from "lucide-react";
+import { Menu, X, LogOut, User, ChevronDown } from "lucide-react";
 import { LogoWithText } from "@/components/shared/Logo";
 import { UserAvatar } from "@/components/ui/Avatar";
 import { useAuth } from "@/features/auth/AuthContext";
@@ -18,6 +18,7 @@ const navByRole: Record<string, NavItem[]> = {
   COMPANY: [
     { label: "Boshqaruv paneli", to: "/app/company", end: true },
     { label: "Muammolarim", to: "/app/company/problems" },
+    { label: "Takliflar", to: "/app/company/proposals" },
     { label: "Bog'lanishlar", to: "/app/connections" },
     { label: "Profil", to: "/app/profile" },
   ],
@@ -63,12 +64,25 @@ function NavLinks({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => 
 export function AppShellLayout() {
   const { user, setUser } = useAuth();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   if (!user) return null;
   const items = navByRole[user.role] ?? [];
 
   async function handleLogout() {
+    setUserMenuOpen(false);
     await api.post("/auth/logout");
     setUser(null);
     navigate("/");
@@ -94,7 +108,40 @@ export function AppShellLayout() {
           <button className="text-ink md:hidden" onClick={() => setDrawerOpen(true)} aria-label="Menyuni ochish">
             <Menu size={24} />
           </button>
-          <UserAvatar name={user!.name} size={36} />
+
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={() => setUserMenuOpen((v) => !v)}
+              className="flex items-center gap-2.5 rounded-xl py-1.5 pl-1.5 pr-3 transition-colors hover:bg-slate-100"
+            >
+              <UserAvatar name={user.name} size={34} />
+              <span className="hidden text-sm font-medium text-ink md:block">{user.name}</span>
+              <ChevronDown size={16} className={clsx("hidden text-ink-muted transition-transform md:block", userMenuOpen && "rotate-180")} />
+            </button>
+
+            {userMenuOpen && (
+              <div className="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-xl border border-surface-border bg-white shadow-lg">
+                <div className="border-b border-surface-border px-4 py-3">
+                  <p className="text-sm font-semibold text-ink">{user.name}</p>
+                  <p className="text-xs text-ink-muted">{user.email}</p>
+                </div>
+                <div className="p-1.5">
+                  <button
+                    onClick={() => { setUserMenuOpen(false); navigate("/app/profile"); }}
+                    className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-ink transition-colors hover:bg-slate-100"
+                  >
+                    <User size={16} /> Profil
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-danger transition-colors hover:bg-red-50"
+                  >
+                    <LogOut size={16} /> Chiqish
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </header>
 
         {drawerOpen && (

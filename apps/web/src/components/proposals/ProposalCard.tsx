@@ -31,6 +31,9 @@ export function ProposalCard({
               {[proposal.specialization, proposal.organization].filter(Boolean).join(" · ")}
             </p>
           )}
+          {showScientist && proposal.scientistBio && (
+            <p className="mt-1 text-sm text-ink-muted">{proposal.scientistBio}</p>
+          )}
         </div>
         <ProposalStatusBadge status={proposal.status} />
       </div>
